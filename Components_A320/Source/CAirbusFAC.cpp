@@ -1,18 +1,18 @@
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "C3DScene.h"
 
 // Application
 #include "CAirbusFAC.h"
 
-//-------------------------------------------------------------------------------------------------
-
 using namespace Math;
 
 //-------------------------------------------------------------------------------------------------
 
-CComponent* CAirbusFAC::instanciator(C3DScene* pScene)
+CComponent* CAirbusFAC::instantiator(C3DScene* pScene)
 {
     return new CAirbusFAC(pScene);
 }
@@ -37,4 +37,10 @@ CAirbusFAC::~CAirbusFAC()
 void CAirbusFAC::update(double dDeltaTime)
 {
     CAirbusFlightComputer::update(dDeltaTime);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFAC::work(double dDeltaTime)
+{
 }

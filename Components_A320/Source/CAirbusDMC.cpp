@@ -2,8 +2,10 @@
 // Qt
 #include <QPainter>
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "C3DScene.h"
 
 // Application
@@ -15,7 +17,7 @@ using namespace Math;
 
 //-------------------------------------------------------------------------------------------------
 
-CComponent* CAirbusDMC::instanciator(C3DScene* pScene)
+CComponent* CAirbusDMC::instantiator(C3DScene* pScene)
 {
     return new CAirbusDMC(pScene);
 }
@@ -26,8 +28,6 @@ CAirbusDMC::CAirbusDMC(C3DScene* pScene)
     : CAirbusFlightComputer(pScene)
 {
     LOG_DEBUG("CAirbusDMC::CAirbusDMC()");
-
-    m_fMainFont = QFont("Arial", 20);
 
     m_rVelocityBar = QRectF(0.00, 0.20, 0.20, 0.60);
     m_rArtificialHorizon = QRectF(0.25, 0.20, 0.45, 0.60);
@@ -46,7 +46,7 @@ CAirbusDMC::CAirbusDMC(C3DScene* pScene)
     m_iVerticalSpeedMarker.addValue( 2000.0 * FAC_FPM_TO_MS, -0.90);
     m_iVerticalSpeedMarker.addValue( 6000.0 * FAC_FPM_TO_MS, -1.00);
 
-    m_rRosace = QRectF(0.20, 0.20, 0.60, 0.60);
+    m_rCompass = QRectF(0.20, 0.20, 0.60, 0.60);
 
     m_rEWD_Engines = QRectF(0.00, 0.00, 0.60, 0.70);
 
@@ -83,25 +83,29 @@ void CAirbusDMC::updateTexture(CTexture* pTexture, double dDeltaTime)
 {
     QPainter painter;
 
-    if (painter.begin(&(pTexture->getImage())))
+    if (painter.begin(&(pTexture->image())))
     {
-        painter.fillRect(0, 0, pTexture->getImage().width(), pTexture->getImage().height(), QColor(0, 0, 0));
+        int iFontLargeSize = ((pTexture->image().height() / 16) * 4) / 5;
+
+        m_fMainFont = QFont(A320_MCDU_FONT, iFontLargeSize);
+
+        painter.fillRect(0, 0, pTexture->image().width(), pTexture->image().height(), QColor(0, 0, 0));
 
         if (m_bPowered)
         {
-            if (pTexture->getName().contains("_PFD"))
+            if (pTexture->name().contains("_PFD"))
             {
                 updateTexture_PFD(&painter, pTexture, dDeltaTime);
             }
-            else if (pTexture->getName().contains("_ND"))
+            else if (pTexture->name().contains("_ND"))
             {
                 updateTexture_ND(&painter, pTexture, dDeltaTime);
             }
-            else if (pTexture->getName().contains("_EWD"))
+            else if (pTexture->name().contains("_EWD"))
             {
                 updateTexture_EWD(&painter, pTexture, dDeltaTime);
             }
-            else if (pTexture->getName().contains("_SD"))
+            else if (pTexture->name().contains("_SD"))
             {
                 updateTexture_SD(&painter, pTexture, dDeltaTime);
             }

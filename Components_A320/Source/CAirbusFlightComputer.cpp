@@ -1,6 +1,8 @@
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "CConsoleBoard.h"
 #include "C3DScene.h"
 #include "CElectricalComponent.h"
@@ -12,7 +14,7 @@ using namespace Math;
 
 //-------------------------------------------------------------------------------------------------
 
-CComponent* CAirbusFlightComputer::instanciator(C3DScene* pScene)
+CComponent* CAirbusFlightComputer::instantiator(C3DScene* pScene)
 {
     return new CAirbusFlightComputer(pScene);
 }

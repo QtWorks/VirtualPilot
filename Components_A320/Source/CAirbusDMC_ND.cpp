@@ -2,8 +2,10 @@
 // Qt
 #include <QPainter>
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "C3DScene.h"
 
 // Application
@@ -17,67 +19,30 @@ using namespace Math;
 
 void CAirbusDMC::updateTexture_ND(QPainter* pPainter, CTexture* pTexture, double dDeltaTime)
 {
-    drawRosace(pPainter, pTexture, dDeltaTime, true);
+    drawCompass(pPainter, pTexture, dDeltaTime, true);
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void CAirbusDMC::drawRosace(QPainter* pPainter, CTexture* pTexture, double dDeltaTime, bool bArc)
+void CAirbusDMC::drawCompass(QPainter* pPainter, CTexture* pTexture, double dDeltaTime, bool bArc)
 {
     // Get flight data
-    CAirbusData* pGeoLoc_Latitude_deg = getData(adGeoLoc_Latitude_deg);
-    CAirbusData* pGeoLoc_Longitude_deg = getData(adGeoLoc_Longitude_deg);
-    CAirbusData* pGeoLoc_TrueHeading_deg = getData(adGeoLoc_TrueHeading_deg);
-    CAirbusData* pGeoLoc_TrueTrack_deg = getData(adGeoLoc_TrueTrack_deg);
-    CAirbusData* pFCU_Heading_deg = getData(adFCU_Heading_deg);
-    CAirbusData* pFG_FlightPlan_ptr = getData(adFG_FlightPlan_ptr);
-
-    double dGeoLoc_Latitude_deg = 0.0;
-    double dGeoLoc_Longitude_deg = 0.0;
-    double dGeoLoc_TrueHeading_deg = 0.0;
-    double dGeoLoc_TrueTrack_deg = 0.0;
-    double dFCU_Heading_deg = 0.0;
-    CAirbusFlightPlan* pFG_FlightPlan = NULL;
-
-    if (pGeoLoc_Latitude_deg != NULL)
-    {
-        dGeoLoc_Latitude_deg = pGeoLoc_Latitude_deg->getData().toDouble();
-    }
-
-    if (pGeoLoc_Longitude_deg != NULL)
-    {
-        dGeoLoc_Longitude_deg = pGeoLoc_Longitude_deg->getData().toDouble();
-    }
-
-    if (pGeoLoc_TrueHeading_deg != NULL)
-    {
-        dGeoLoc_TrueHeading_deg = pGeoLoc_TrueHeading_deg->getData().toDouble();
-    }
-
-    if (pGeoLoc_TrueTrack_deg != NULL)
-    {
-        dGeoLoc_TrueTrack_deg = pGeoLoc_TrueTrack_deg->getData().toDouble();
-    }
-
-    if (pFCU_Heading_deg != NULL)
-    {
-        dFCU_Heading_deg = pFCU_Heading_deg->getData().toDouble();
-    }
-
-    if (pFG_FlightPlan_ptr != NULL)
-    {
-        pFG_FlightPlan = (CAirbusFlightPlan*) pFG_FlightPlan_ptr->getData().toULongLong();
-    }
+    CAirbusFlightPlan* pFG_FlightPlan_ptr = GETDATA_POINTER(adFG_FlightPlan_ptr, CAirbusFlightPlan);
+    double dGeoLoc_Latitude_deg = GETDATA_DOUBLE(adGeoLoc_Latitude_deg);
+    double dGeoLoc_Longitude_deg = GETDATA_DOUBLE(adGeoLoc_Longitude_deg);
+    double dGeoLoc_TrueHeading_deg = GETDATA_DOUBLE(adGeoLoc_TrueHeading_deg);
+    double dGeoLoc_TrueTrack_deg = GETDATA_DOUBLE(adGeoLoc_TrueTrack_deg);
+    double dFCU_Heading_deg = GETDATA_DOUBLE(adFCU_Heading_deg);
 
     //-----------------------------------------------------------------------------
 
     double dRange_m = 40 * FAC_NM_TO_M;
 
     // Compute coordinates
-    double X = m_rRosace.left() * pTexture->getImage().width();
-    double Y = m_rRosace.top() * pTexture->getImage().height();
-    double W = m_rRosace.width() * pTexture->getImage().width();
-    double H = m_rRosace.height() * pTexture->getImage().height();
+    double X = m_rCompass.left() * pTexture->image().width();
+    double Y = m_rCompass.top() * pTexture->image().height();
+    double W = m_rCompass.width() * pTexture->image().width();
+    double H = m_rCompass.height() * pTexture->image().height();
 
     double W8 = W / 8.0;
     double W10 = W / 10.0;
@@ -90,10 +55,10 @@ void CAirbusDMC::drawRosace(QPainter* pPainter, CTexture* pTexture, double dDelt
 
     if (bArc)
     {
-        X = (m_rRosace.center().x() - m_rRosace.width()) * pTexture->getImage().width();
-        Y = m_rRosace.top() * pTexture->getImage().height();
-        W = (m_rRosace.width() * 2.0) * pTexture->getImage().width();
-        H = (m_rRosace.height() * 2.0) * pTexture->getImage().height();
+        X = (m_rCompass.center().x() - m_rCompass.width()) * pTexture->image().width();
+        Y = m_rCompass.top() * pTexture->image().height();
+        W = (m_rCompass.width() * 2.0) * pTexture->image().width();
+        H = (m_rCompass.height() * 2.0) * pTexture->image().height();
 
         W8 = W / 16.0;
         W20 = W / 40.0;
@@ -141,15 +106,15 @@ void CAirbusDMC::drawRosace(QPainter* pPainter, CTexture* pTexture, double dDelt
     pPainter->translate(rWholePart.center());
 
     // Flight plan
-    if (pFG_FlightPlan != NULL)
+    if (pFG_FlightPlan_ptr != nullptr)
     {
-        CMatrix4 mHeading = CMatrix4::MakeRotation(CVector3(0.0, Angles::toRad(-dGeoLoc_TrueHeading_deg), 0.0));
+        CMatrix4 mHeading = CMatrix4::makeRotation(CVector3(0.0, Angles::toRad(-dGeoLoc_TrueHeading_deg), 0.0));
         CGeoloc gGeoloc(Angles::toRad(dGeoLoc_Latitude_deg), Angles::toRad(dGeoLoc_Longitude_deg), 0.0);
         CVector3 vPreviousPosition;
 
-        for (int iIndex = 0; iIndex < pFG_FlightPlan->getWaypoints().count(); iIndex++)
+        for (int iIndex = 0; iIndex < pFG_FlightPlan_ptr->waypoints().count(); iIndex++)
         {
-            CVector3 vCurrentPosition = pFG_FlightPlan->getWaypoints()[iIndex].getGeoloc().toVector3(gGeoloc);
+            CVector3 vCurrentPosition = pFG_FlightPlan_ptr->waypoints()[iIndex].geoloc().toVector3(gGeoloc);
             vCurrentPosition = mHeading * vCurrentPosition;
             vCurrentPosition.Z *= -1.0;
             vCurrentPosition *= dRangeFactor;
@@ -158,17 +123,17 @@ void CAirbusDMC::drawRosace(QPainter* pPainter, CTexture* pTexture, double dDelt
 
             if (iIndex > 0)
             {
+                pPainter->setPen(A320_Color_White);
                 pPainter->drawLine(vPreviousPosition.X, vPreviousPosition.Z, vCurrentPosition.X, vCurrentPosition.Z);
             }
 
-            drawWaypoint(pPainter, pTexture, dDeltaTime, pFG_FlightPlan->getWaypoints()[iIndex], wpt, true);
+            drawWaypoint(pPainter, pTexture, dDeltaTime, pFG_FlightPlan_ptr->waypoints()[iIndex], wpt, true);
 
             vPreviousPosition = vCurrentPosition;
         }
     }
 
     // Aircraft
-
     {
         QPointF point1(0.0, -W20);
         QPointF point2(0.0, W10);
@@ -285,7 +250,7 @@ void CAirbusDMC::drawWaypoint(QPainter* pPainter, CTexture* pTexture, double dDe
     }
     else
     {
-        switch (wWaypoint.getType())
+        switch (wWaypoint.type())
         {
             case wtAirport:
                 pPainter->setPen(A320_Color_Purple);
@@ -302,5 +267,5 @@ void CAirbusDMC::drawWaypoint(QPainter* pPainter, CTexture* pTexture, double dDe
     }
 
     QRectF rText(dX2, dYC, rect.width() * 4.0, rect.height());
-    pPainter->drawText(rText, Qt::AlignLeft, wWaypoint.getName());
+    pPainter->drawText(rText, Qt::AlignLeft, wWaypoint.name());
 }

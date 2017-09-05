@@ -1,20 +1,19 @@
 
 #pragma once
 
-#include "components_a320_global.h"
-
-//-------------------------------------------------------------------------------------------------
+// qt-plus
+#include "CPIDController.h"
 
 // Quick3D
-#include "CPIDController.h"
 #include "CComponentReference.h"
 #include "CWing.h"
 #include "CElevator.h"
 #include "CVector2.h"
 
 // Application
-#include "Constants.h"
+#include "components_a320_global.h"
 #include "CAirbusFlightComputer.h"
+#include "Constants.h"
 
 //-------------------------------------------------------------------------------------------------
 
@@ -22,6 +21,7 @@ class C3DScene;
 
 //-------------------------------------------------------------------------------------------------
 
+//! Elevator and Aileron Computer
 class COMPONENTS_A320_EXPORT CAirbusELAC : public CAirbusFlightComputer
 {
 public:
@@ -31,7 +31,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusELAC(C3DScene* pScene);
@@ -52,7 +52,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    virtual QString getClassName() const { return ClassName_CAirbusELAC; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusELAC; }
 
     //! Loads this object's parameters
     virtual void loadParameters(const QString& sBaseFile, CXMLNode xComponent) Q_DECL_OVERRIDE;
@@ -67,7 +67,7 @@ public:
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
 
     //!
-    virtual void work(double dDeltaTime);
+    virtual void work(double dDeltaTime) Q_DECL_OVERRIDE;
 
     //-------------------------------------------------------------------------------------------------
     // Control methods

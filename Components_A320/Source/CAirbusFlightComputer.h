@@ -1,16 +1,16 @@
 
 #pragma once
 
-//-------------------------------------------------------------------------------------------------
-
 // Quick3D
 #include "CElectricalConsumer.h"
 
 // Application
 #include "components_a320_global.h"
-#include "Constants.h"
 #include "CAirbusComponent.h"
 #include "CAirbusDataSupplier.h"
+#include "Constants.h"
+
+//-------------------------------------------------------------------------------------------------
 
 class C3DScene;
 
@@ -23,7 +23,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusFlightComputer(C3DScene* pScene);
@@ -44,7 +44,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    virtual QString getClassName() const { return ClassName_CAirbusFlightComputer; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusFlightComputer; }
 
     //! Loads this object's parameters
     virtual void loadParameters(const QString& sBaseFile, CXMLNode xComponent) Q_DECL_OVERRIDE;

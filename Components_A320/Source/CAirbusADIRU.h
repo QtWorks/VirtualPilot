@@ -1,21 +1,16 @@
 
 #pragma once
 
-#include "components_a320_global.h"
-
-//-------------------------------------------------------------------------------------------------
-
 // Quick3D
 #include "CAirbusFlightComputer.h"
 
 // Application
+#include "components_a320_global.h"
 #include "Constants.h"
 
 //-------------------------------------------------------------------------------------------------
 
 class C3DScene;
-
-//-------------------------------------------------------------------------------------------------
 
 class COMPONENTS_A320_EXPORT CAirbusADIRU : public CAirbusFlightComputer
 {
@@ -26,7 +21,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusADIRU(C3DScene* pScene);
@@ -47,7 +42,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    virtual QString getClassName() const { return ClassName_CAirbusADIRU; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusADIRU; }
 
     //!
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
@@ -65,5 +60,5 @@ public:
 
 protected:
 
-    double		m_dPreviousIndicatedAirSpeed_ms;
+    double      m_dPreviousIndicatedAirSpeed_ms;
 };

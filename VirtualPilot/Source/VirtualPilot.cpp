@@ -2,8 +2,10 @@
 // Qt
 #include <QFileDialog>
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "CConsoleBoard.h"
 #include "CPreferencesManager.h"
 #include "CComponentFactory.h"
@@ -56,6 +58,13 @@ VirtualPilot::VirtualPilot(QString sSceneFileName, QWidget *parent, Qt::WFlags f
     connect(ui.actionQuit, SIGNAL(triggered()), this, SLOT(onQuitClicked()));
     connect(ui.actionDump_scene, SIGNAL(triggered()), this, SLOT(onDumpSceneClicked()));
 
+    connect(ui.m_sTime, SIGNAL(valueChanged(int)), this, SLOT(onTimeChanged(int)));
+    connect(ui.m_sFogLevel, SIGNAL(valueChanged(int)), this, SLOT(onFogLevelChanged(int)));
+    connect(ui.m_sWindLevel, SIGNAL(valueChanged(int)), this, SLOT(onWindLevelChanged(int)));
+    connect(ui.m_sShaderQuality, SIGNAL(valueChanged(int)), this, SLOT(onShaderQualityChanged(int)));
+
+    connect(ui.m_chkOverlook, SIGNAL(clicked()), this, SLOT(onOverlookClicked()));
+
     loadScene(QCoreApplication::applicationDirPath() + "/" + sSceneFileName);
 
     readPreferences();
@@ -96,7 +105,7 @@ void VirtualPilot::loadScene(QString sFileName)
 
     m_pScene->clear();
 
-    m_pScene->viewports()[0] = new CViewport(m_pScene, true);
+    m_pScene->viewports()[0] = new CViewport(m_pScene, false);
     m_pScene->viewports()[0]->setEnabled(true);
 
     //-----------------------------------------------
@@ -124,33 +133,33 @@ void VirtualPilot::loadVehicle(QString sFileName)
 
     QSP<CComponent> pComponent(CComponentLoader::getInstance()->loadComponent(sFileName, m_pScene));
 
-    if (pComponent)
+    if (pComponent != nullptr)
     {
         QVector<QSP<CComponent> > vComponents = m_pScene->componentsByTag("PLAYER");
 
         if (vComponents.count() > 0)
         {
-            playerGeoloc = vComponents[0]->getGeoloc();
-            playerRotation = vComponents[0]->getOriginRotation();
+            playerGeoloc = vComponents[0]->geoloc();
+            playerRotation = vComponents[0]->rotation();
         }
 
         LOG_DEBUG("VirtualPilot::loadVehicle() : adding component to scene...");
 
         m_pScene->deleteComponentsByTag("PLAYER");
         m_pScene->addComponent(pComponent);
-        m_pScene->setController(pComponent->getController());
+        m_pScene->setController(pComponent->controller());
 
         pComponent->setTag("PLAYER");
 
         if (playerGeoloc.valid())
         {
             pComponent->setGeoloc(playerGeoloc);
-            pComponent->setOriginRotation(playerRotation);
+            pComponent->setRotation(playerRotation);
         }
 
         QSP<CComponent> pCamera = pComponent->findComponent(".Pilot", pComponent);
 
-        if (pCamera)
+        if (pCamera != nullptr)
         {
             m_pScene->viewports()[0]->setCamera(QSP_CAST(CCamera, pCamera));
         }
@@ -176,7 +185,7 @@ void VirtualPilot::resizeEvent(QResizeEvent *event)
 
 void VirtualPilot::onResize()
 {
-    if (m_pScene != NULL)
+    if (m_pScene != nullptr)
     {
         m_pView->setGeometry(0, 0, ui.Render1->width(), ui.Render1->height());
         m_pScene->setGeometry(0, 0, m_pView->width(), m_pView->height());
@@ -191,7 +200,7 @@ void VirtualPilot::onTimer()
 {
     m_tTimer.stop();
 
-    if (m_pScene != NULL && m_bRun == true)
+    if (m_pScene != nullptr && m_bRun == true)
     {
         QDateTime tCurrentTime = QDateTime::currentDateTime();
         double dDeltaTime = (double) m_tPreviousTime.msecsTo(tCurrentTime) / 1000.0;
@@ -215,26 +224,26 @@ void VirtualPilot::onTimer()
         CVector3 TorqueAcceleration;
         double dSpeedMS = 0.0;
 
-        if (m_pScene->controller() != NULL && m_pScene->controller()->getPositionTarget())
+        if (m_pScene->controller() != nullptr && m_pScene->controller()->getPositionTarget())
         {
-            QSP<CPhysicalComponent> pPhysical = QSP_CAST(CPhysicalComponent, m_pScene->controller()->getPositionTarget()->getRoot());
+            QSP<CPhysicalComponent> pPhysical = QSP_CAST(CPhysicalComponent, m_pScene->controller()->getPositionTarget()->root());
 
-            if (pPhysical)
+            if (pPhysical != nullptr)
             {
-                ViewGeoloc = pPhysical->getGeoloc();
+                ViewGeoloc = pPhysical->geoloc();
                 ControledVelocity = pPhysical->velocity_ms();
                 ControledTorque = pPhysical->angularVelocity_rs();
-                dSpeedMS = ControledVelocity.getMagnitude();
+                dSpeedMS = ControledVelocity.magnitude();
             }
         }
 
-        if (m_pScene->controller() != NULL && m_pScene->controller()->getRotationTarget())
+        if (m_pScene->controller() != nullptr && m_pScene->controller()->getRotationTarget())
         {
-            QSP<CPhysicalComponent> pPhysical = QSP_CAST(CPhysicalComponent, m_pScene->controller()->getRotationTarget()->getRoot());
+            QSP<CPhysicalComponent> pPhysical = QSP_CAST(CPhysicalComponent, m_pScene->controller()->getRotationTarget()->root());
 
-            if (pPhysical)
+            if (pPhysical != nullptr)
             {
-                ViewRotation = pPhysical->getOriginRotation();
+                ViewRotation = pPhysical->rotation();
             }
         }
 
@@ -265,8 +274,8 @@ void VirtualPilot::onTimer()
                 .arg(m_pScene->m_tStatistics.m_iNumPolysDrawn)
                 .arg(m_pScene->m_tStatistics.m_iNumChunksDrawn)
                 .arg(CComponent::getNumComponents())
-                .arg(CWorldChunk::getNumWorldChunks())
-                .arg(CTerrain::numTerrains())
+                .arg(CComponent::componentCounter()[ClassName_CWorldChunk])
+                .arg(CComponent::componentCounter()[ClassName_CTerrain])
                 ;
 
         ui.m_lInfo->setText(sInfo);
@@ -326,7 +335,7 @@ void VirtualPilot::onDumpSceneClicked()
 {
     // Dump de la scène
 
-    QString sPath = CLogManager::getInstance()->getPathName();
+    QString sPath = CLogger::getInstance()->pathName();
     QFile dump(sPath + "/Scene.dump.txt");
 
     if (dump.open(QIODevice::WriteOnly))
@@ -335,4 +344,39 @@ void VirtualPilot::onDumpSceneClicked()
         m_pScene->dump(stream, 0);
         dump.close();
     }
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onTimeChanged(int iValue)
+{
+    m_pScene->setTimeOfDay(QTime(iValue, 0, 0));
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onFogLevelChanged(int iValue)
+{
+    m_pScene->setFogLevel((double) iValue / 100.0);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onWindLevelChanged(int iValue)
+{
+    m_pScene->setWindLevel((double) iValue / 100.0);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onShaderQualityChanged(int iValue)
+{
+    m_pScene->setShaderQuality((double) iValue / 100.0);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onOverlookClicked()
+{
+    m_pScene->setOverlookScene(ui.m_chkOverlook->checkState() == Qt::Checked);
 }

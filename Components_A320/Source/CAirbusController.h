@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include "components_a320_global.h"
-
 // Qt
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -12,9 +10,12 @@
 #include "CComponentReference.h"
 
 // Application
+#include "components_a320_global.h"
 #include "Constants.h"
 #include "CAirbusDataSupplier.h"
 #include "CAirbusFCU.h"
+#include "CAirbusMCDU.h"
+#include "CAirbusElectricalPanel.h"
 
 //-------------------------------------------------------------------------------------------------
 
@@ -32,7 +33,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusController(C3DScene* pScene);
@@ -52,12 +53,15 @@ public:
     // Control methods
     //-------------------------------------------------------------------------------------------------
 
+    //!
+    void initializeLists();
+
     //-------------------------------------------------------------------------------------------------
     // Inherited methods
     //-------------------------------------------------------------------------------------------------
 
     //! Returns this object's class name
-    virtual QString getClassName() const { return ClassName_CAirbusController; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusController; }
 
     //! Loads this object's parameters
     virtual void loadParameters(const QString& sBaseFile, CXMLNode xComponent) Q_DECL_OVERRIDE;
@@ -72,16 +76,16 @@ public:
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
 
     //!
-    virtual void keyPressEvent(QKeyEvent* event);
+    virtual void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
 
     //!
-    virtual void keyReleaseEvent(QKeyEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
     //!
-    virtual void wheelEvent(QWheelEvent *event);
+    virtual void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
 
     //!
-    virtual void q3dEvent(CQ3DEvent* event);
+    virtual void q3dEvent(CQ3DEvent* event) Q_DECL_OVERRIDE;
 
     //-------------------------------------------------------------------------------------------------
     // Properties
@@ -89,5 +93,14 @@ public:
 
 protected:
 
-    CComponentReference<CAirbusFCU>		m_rFCU;
+    CComponentReference<CAirbusFCU>                 m_rFCU;
+    CComponentReference<CAirbusMCDU>                m_rMCDU_1;
+    CComponentReference<CAirbusMCDU>                m_rMCDU_2;
+    CComponentReference<CAirbusElectricalPanel>     m_rElectricalPanel;
+
+    QStringList                                     m_lEVENTS_MCDU_1;
+    QStringList                                     m_lEVENTS_MCDU_2;
+
+    double                                          m_dEngine1ThrustLever_norm;
+    double                                          m_dEngine2ThrustLever_norm;
 };

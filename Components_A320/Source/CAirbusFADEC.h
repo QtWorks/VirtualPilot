@@ -1,21 +1,26 @@
 
 #pragma once
 
-#include "components_a320_global.h"
-#include "Constants.h"
-
-//-------------------------------------------------------------------------------------------------
+// qt-plus
+#include "CPIDController.h"
 
 // Quick3D
-#include "CPIDController.h"
 #include "CComponentReference.h"
 #include "CJetEngine.h"
 
 // Application
+#include "components_a320_global.h"
 #include "CAirbusFlightComputer.h"
+#include "Constants.h"
+
+//-------------------------------------------------------------------------------------------------
+// Forward declarations
 
 class C3DScene;
 
+//-------------------------------------------------------------------------------------------------
+
+//! Full Authority Digital Engine Control
 class COMPONENTS_A320_EXPORT CAirbusFADEC : public CAirbusFlightComputer
 {
 public:
@@ -25,7 +30,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusFADEC(C3DScene* pScene);
@@ -45,8 +50,8 @@ public:
     // Inherited methods
     //-------------------------------------------------------------------------------------------------
 
-    //!
-    virtual QString getClassName() const { return ClassName_CAirbusFADEC; }
+    //! Returns this object's class name
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusFADEC; }
 
     //! Loads this object's parameters
     virtual void loadParameters(const QString& sBaseFile, CXMLNode xComponent) Q_DECL_OVERRIDE;

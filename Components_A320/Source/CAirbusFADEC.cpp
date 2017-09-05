@@ -1,6 +1,8 @@
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "CConsoleBoard.h"
 #include "C3DScene.h"
 #include "CWing.h"
@@ -10,13 +12,11 @@
 // Application
 #include "CAirbusFADEC.h"
 
-//-------------------------------------------------------------------------------------------------
-
 using namespace Math;
 
 //-------------------------------------------------------------------------------------------------
 
-CComponent* CAirbusFADEC::instanciator(C3DScene* pScene)
+CComponent* CAirbusFADEC::instantiator(C3DScene* pScene)
 {
     return new CAirbusFADEC(pScene);
 }
@@ -44,8 +44,8 @@ void CAirbusFADEC::loadParameters(const QString& sBaseFile, CXMLNode xComponent)
 
     CXMLNode xNode = xComponent.getNodeByTagName(ParamName_Engines);
 
-    m_rEngine1Target.setName(xNode.attributes()["Engine1Target"]);
-    m_rEngine2Target.setName(xNode.attributes()["Engine2Target"]);
+    m_rEngine1Target.setName(xNode.attributes()[ParamName_Engine1Target]);
+    m_rEngine2Target.setName(xNode.attributes()[ParamName_Engine2Target]);
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -84,37 +84,12 @@ void CAirbusFADEC::work(double dDeltaTime)
     QSP<CJetEngine> pEngine1 = QSP_CAST(CJetEngine, m_rEngine1Target.component());
     QSP<CJetEngine> pEngine2 = QSP_CAST(CJetEngine, m_rEngine2Target.component());
 
-    if (pEngine1 && pEngine2)
+    if (pEngine1 != nullptr && pEngine2 != nullptr )
     {
-        CAirbusData* pFG_CommandedThrust_norm = getData(adFG_CommandedThrust_norm);
-        CAirbusData* pFCU_AutoThrust_Engaged = getData(adFCU_AutoThrust_Engaged);
-        CAirbusData* pThrottle_1_norm = getData(adThrottle_1_norm);
-        CAirbusData* pThrottle_2_norm = getData(adThrottle_2_norm);
-
-        double dFG_CommandedThrust_norm = 0.0;
-        bool bFCU_AutoThrust_Engaged = false;
-        double dThrottle_1_norm = 0.0;
-        double dThrottle_2_norm = 0.0;
-
-        if (pFG_CommandedThrust_norm != NULL)
-        {
-            dFG_CommandedThrust_norm = pFG_CommandedThrust_norm->getData().toDouble();
-        }
-
-        if (pFCU_AutoThrust_Engaged != NULL)
-        {
-            bFCU_AutoThrust_Engaged = pFCU_AutoThrust_Engaged->getData().toBool();
-        }
-
-        if (pThrottle_1_norm != NULL)
-        {
-            dThrottle_1_norm = pThrottle_1_norm->getData().toDouble();
-        }
-
-        if (pThrottle_2_norm != NULL)
-        {
-            dThrottle_2_norm = pThrottle_2_norm->getData().toDouble();
-        }
+        double dFG_CommandedThrust_norm = GETDATA_DOUBLE(adFG_CommandedThrust_norm);
+        bool bFCU_AutoThrust_Engaged = GETDATA_BOOL(adFCU_AutoThrust_Engaged_bool);
+        double dThrottle_1_norm = GETDATA_DOUBLE(adThrottle_1_norm);
+        double dThrottle_2_norm = GETDATA_DOUBLE(adThrottle_2_norm);
 
         if (bFCU_AutoThrust_Engaged == true)
         {

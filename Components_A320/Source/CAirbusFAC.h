@@ -1,16 +1,19 @@
 
 #pragma once
 
+// Quick3D
+#include "CAirbusFlightComputer.h"
+
+// Application
 #include "components_a320_global.h"
 #include "Constants.h"
 
 //-------------------------------------------------------------------------------------------------
 
-// Quick3D
-#include "CAirbusFlightComputer.h"
-
 class C3DScene;
 
+//! Flight Augmentation Computer
+//! Control surface driver
 class COMPONENTS_A320_EXPORT CAirbusFAC : public CAirbusFlightComputer
 {
 public:
@@ -20,7 +23,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusFAC(C3DScene* pScene);
@@ -41,10 +44,13 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    virtual QString getClassName() const { return ClassName_CAirbusFAC; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusFAC; }
 
     //!
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
+
+    //!
+    virtual void work(double dDeltaTime) Q_DECL_OVERRIDE;
 
     //-------------------------------------------------------------------------------------------------
     // Control methods

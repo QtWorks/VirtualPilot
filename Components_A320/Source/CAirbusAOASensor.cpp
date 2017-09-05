@@ -1,6 +1,8 @@
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "CConsoleBoard.h"
 #include "C3DScene.h"
 #include "CAircraft.h"
@@ -12,7 +14,7 @@ using namespace Math;
 
 //-------------------------------------------------------------------------------------------------
 
-CComponent* CAirbusAOASensor::instanciator(C3DScene* pScene)
+CComponent* CAirbusAOASensor::instantiator(C3DScene* pScene)
 {
     return new CAirbusAOASensor(pScene);
 }
@@ -36,9 +38,9 @@ CAirbusAOASensor::~CAirbusAOASensor()
 
 void CAirbusAOASensor::update(double dDeltaTime)
 {
-    QSP<CAircraft> pAircraft = QSP_CAST(CAircraft, getRoot());
+    QSP<CAircraft> pAircraft = QSP_CAST(CAircraft, root());
 
-    if (pAircraft)
+    if (pAircraft != nullptr)
     {
         double dAngleOfAttack = pAircraft->angleOfAttack_rad();
 

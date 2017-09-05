@@ -1,20 +1,20 @@
 
 #pragma once
 
-#include "components_a320_global.h"
-
-//-------------------------------------------------------------------------------------------------
-
 // Application
-#include "Constants.h"
+#include "components_a320_global.h"
 #include "CAirbusFlightComputer.h"
+#include "Constants.h"
 
 //-------------------------------------------------------------------------------------------------
+// Forward declarations
 
 class C3DScene;
 
 //-------------------------------------------------------------------------------------------------
 
+//! Flight Control Unit
+//! Controls for autopilot and flight director
 class COMPONENTS_A320_EXPORT CAirbusFCU : public CAirbusFlightComputer
 {
 public:
@@ -24,7 +24,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusFCU(C3DScene* pScene);
@@ -45,7 +45,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    virtual QString getClassName() const { return ClassName_CAirbusFCU; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusFCU; }
 
     //!
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
@@ -75,9 +75,12 @@ public:
 
 protected:
 
-    bool	m_bAutoPilot1_Engaged;
-    bool	m_bAutoPilot2_Engaged;
-    bool	m_bAutoThrust_Engaged;
+    bool    m_bAutoPilot1_Engaged;
+    bool    m_bAutoPilot2_Engaged;
+    bool    m_bAutoThrust_Engaged;
+    bool    m_bLateralManaged;
+    bool    m_bVerticalManaged;
 
-    double	m_dSelectedHeading;
+    double  m_dSelectedHeading;
+    double  m_dSelectedAltitude;
 };

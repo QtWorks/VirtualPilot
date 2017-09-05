@@ -2,8 +2,10 @@
 // Qt
 #include <QPainter>
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "C3DScene.h"
 
 // Application
@@ -17,26 +19,13 @@ using namespace Math;
 
 void CAirbusDMC::updateTexture_EWD(QPainter* pPainter, CTexture* pTexture, double dDeltaTime)
 {
-    CAirbusData* pFADEC_Engine1_N1_norm = getData(adFADEC_Engine1_N1_norm);
-    CAirbusData* pFADEC_Engine2_N1_norm = getData(adFADEC_Engine2_N1_norm);
-
-    double dFADEC_Engine1_N1_norm = 0.0;
-    double dFADEC_Engine2_N1_norm = 0.0;
-
-    if (pFADEC_Engine1_N1_norm != NULL)
-    {
-        dFADEC_Engine1_N1_norm = pFADEC_Engine1_N1_norm->getData().toDouble();
-    }
-
-    if (pFADEC_Engine2_N1_norm != NULL)
-    {
-        dFADEC_Engine2_N1_norm = pFADEC_Engine2_N1_norm->getData().toDouble();
-    }
+    double dFADEC_Engine1_N1_norm = GETDATA_DOUBLE(adFADEC_Engine1_N1_norm);
+    double dFADEC_Engine2_N1_norm = GETDATA_DOUBLE(adFADEC_Engine2_N1_norm);
 
     // Compute coordinates
-    double X = m_rEWD_Engines.left() * pTexture->getImage().width();
-    double Y = m_rEWD_Engines.top() * pTexture->getImage().height();
-    double W = m_rEWD_Engines.width() * pTexture->getImage().width();
+    double X = m_rEWD_Engines.left() * pTexture->image().width();
+    double Y = m_rEWD_Engines.top() * pTexture->image().height();
+    double W = m_rEWD_Engines.width() * pTexture->image().width();
     // double H = m_rEWD_Engines.height() * pTexture->getImage().height();
     double W25 = W / 2.50;
     // double W4 = W / 4.00;

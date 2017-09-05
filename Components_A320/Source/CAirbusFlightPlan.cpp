@@ -1,19 +1,26 @@
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "C3DScene.h"
 
 // Application
 #include "CAirbusFlightPlan.h"
-
-//-------------------------------------------------------------------------------------------------
 
 using namespace Math;
 
 //-------------------------------------------------------------------------------------------------
 
 CAirbusFlightPlan::CAirbusFlightPlan()
-    : m_iCurrentWaypoint(1)
+    : m_dClimbVerticalSpeed_ms(2500.0 * FAC_FPM_TO_MS)
+    , m_dDescentVerticalSpeed_ms(2500.0 * FAC_FPM_TO_MS)
+    , m_dCruiseAltitude_m(33000.0 * FAC_FEET_TO_METERS)
+    , m_dCruiseSpeed_ms(250.0 * FAC_KNOTS_TO_MS)
+    , m_sCompanyRoute("LFPG-EBBR-1")
+    , m_sFlightNumber("ARB001")
+    , m_sICAOFrom("LFPG")
+    , m_sICAOTo("EBBR")
 {
     LOG_DEBUG("CAirbusFlightPlan::CAirbusFlightPlan()");
 }
@@ -27,6 +34,41 @@ CAirbusFlightPlan::~CAirbusFlightPlan()
 
 //-------------------------------------------------------------------------------------------------
 
+void CAirbusFlightPlan::setCruiseAltitude_m(double dValue)
+{
+    m_dCruiseAltitude_m = dValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFlightPlan::setCruiseSpeed_ms(double dValue)
+{
+    m_dCruiseSpeed_ms = dValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFlightPlan::setCompanyRoute(const QString& sValue)
+{
+    m_sCompanyRoute = sValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFlightPlan::setICAOFrom(const QString& sValue)
+{
+    m_sICAOFrom = sValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFlightPlan::setICAOTo(const QString& sValue)
+{
+    m_sICAOTo = sValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+
 void CAirbusFlightPlan::update(double dDeltaTime)
 {
 }
@@ -35,5 +77,28 @@ void CAirbusFlightPlan::update(double dDeltaTime)
 
 void CAirbusFlightPlan::nextWaypoint()
 {
-    m_iCurrentWaypoint++;
+    // Remove the first waypoint, the one we came from
+    if (m_vWaypoints[WAYPOINT_TO].isGenerated() == false)
+    {
+        clearAllGeneratedWaypoints();
+
+        if (m_vWaypoints.count() > 1)
+        {
+            m_vWaypoints.removeAt(0);
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFlightPlan::clearAllGeneratedWaypoints()
+{
+    for (int index = 0; index < m_vWaypoints.count(); index++)
+    {
+        if (m_vWaypoints[index].isGenerated())
+        {
+            m_vWaypoints.removeAt(index);
+            index--;
+        }
+    }
 }

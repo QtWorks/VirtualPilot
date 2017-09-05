@@ -1,15 +1,18 @@
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "C3DScene.h"
 
+// Application
 #include "CAirbusPitotPort.h"
 
 using namespace Math;
 
 //-------------------------------------------------------------------------------------------------
 
-CComponent* CAirbusPitotPort::instanciator(C3DScene* pScene)
+CComponent* CAirbusPitotPort::instantiator(C3DScene* pScene)
 {
     return new CAirbusPitotPort(pScene);
 }

@@ -2,8 +2,10 @@
 // Qt
 #include <QPainter>
 
+// qt-plus
+#include "CLogger.h"
+
 // Quick3D
-#include "CLogManager.h"
 #include "C3DScene.h"
 
 // Application
@@ -28,36 +30,21 @@ void CAirbusDMC::updateTexture_PFD(QPainter* pPainter, CTexture* pTexture, doubl
 void CAirbusDMC::drawVelocityBar(QPainter* pPainter, CTexture* pTexture, double dDeltaTime)
 {
     // Get flight data
-    CAirbusData* pAirspeed_ms = getData(adAir_IndicatedAirspeed_ms);
-    CAirbusData* pAirspeedVMax_ms = getData(adAir_IndicatedAirspeedVMax_ms);
+    double dAirspeed_ms = GETDATA_DOUBLE(adAir_IndicatedAirspeed_ms);
+    double dAirspeed_VMax_ms = GETDATA_DOUBLE(adAir_IndicatedAirspeedVMax_ms);
 
-    double dAirspeed_ms = 0.0;
-    double dAirspeed_kts = 0.0;
-    double dAirspeed_VMax_ms = 0.0;
-    double dAirspeed_VMax1_kts = 0.0;
-    double dAirspeed_VMax2_kts = 0.0;
-
-    if (pAirspeed_ms != NULL)
-    {
-        dAirspeed_ms = pAirspeed_ms->getData().toDouble();
-        dAirspeed_kts = dAirspeed_ms * FAC_MS_TO_KNOTS;
-    }
-
-    if (pAirspeedVMax_ms != NULL)
-    {
-        dAirspeed_VMax_ms = pAirspeedVMax_ms->getData().toDouble();
-        dAirspeed_VMax1_kts = dAirspeed_VMax_ms * FAC_MS_TO_KNOTS;
-        dAirspeed_VMax2_kts = dAirspeed_VMax1_kts * 2.0;
-    }
+    double dAirspeed_kts = dAirspeed_ms * FAC_MS_TO_KNOTS;
+    double dAirspeed_VMax1_kts = dAirspeed_VMax_ms * FAC_MS_TO_KNOTS;
+    double dAirspeed_VMax2_kts = dAirspeed_VMax1_kts * 2.0;
 
     // Compute nearest 10th knots
     int iNearestTenKnots = ( ((int) (dAirspeed_kts / 10.0) ) * 10);
 
     // Compute coordinates
-    double X = m_rVelocityBar.left() * pTexture->getImage().width();
-    double Y = m_rVelocityBar.top() * pTexture->getImage().height();
-    double W = m_rVelocityBar.width() * pTexture->getImage().width();
-    double H = m_rVelocityBar.height() * pTexture->getImage().height();
+    double X = m_rVelocityBar.left() * pTexture->image().width();
+    double Y = m_rVelocityBar.top() * pTexture->image().height();
+    double W = m_rVelocityBar.width() * pTexture->image().width();
+    double H = m_rVelocityBar.height() * pTexture->image().height();
     double W2 = W / 2.0;
     double W4 = W / 4.0;
     double W10 = W / 10.0;
@@ -160,27 +147,14 @@ void CAirbusDMC::drawVelocityBar(QPainter* pPainter, CTexture* pTexture, double 
 void CAirbusDMC::drawArtificialHorizon(QPainter* pPainter, CTexture* pTexture, double dDeltaTime)
 {
     // Get flight data
-    CAirbusData* pPitch_deg = getData(adInertial_Pitch_deg);
-    CAirbusData* pRoll_deg = getData(adInertial_Roll_deg);
-
-    double dAircraftPitch = 0.0;
-    double dAircraftRoll = 0.0;
-
-    if (pPitch_deg != NULL)
-    {
-        dAircraftPitch = pPitch_deg->getData().toDouble();
-    }
-
-    if (pRoll_deg != NULL)
-    {
-        dAircraftRoll = pRoll_deg->getData().toDouble();
-    }
+    double dAircraftPitch = GETDATA_DOUBLE(adInertial_Pitch_deg);
+    double dAircraftRoll = GETDATA_DOUBLE(adInertial_Roll_deg);
 
     // Compute coordinates
-    double X = m_rArtificialHorizon.left() * pTexture->getImage().width();
-    double Y = m_rArtificialHorizon.top() * pTexture->getImage().height();
-    double W = m_rArtificialHorizon.width() * pTexture->getImage().width();
-    double H = m_rArtificialHorizon.height() * pTexture->getImage().height();
+    double X = m_rArtificialHorizon.left() * pTexture->image().width();
+    double Y = m_rArtificialHorizon.top() * pTexture->image().height();
+    double W = m_rArtificialHorizon.width() * pTexture->image().width();
+    double H = m_rArtificialHorizon.height() * pTexture->image().height();
     double W2 = W * 0.50;
     double W3 = W * 0.30;
     double H2 = H * 0.50;
@@ -245,32 +219,18 @@ void CAirbusDMC::drawArtificialHorizon(QPainter* pPainter, CTexture* pTexture, d
 void CAirbusDMC::drawAltitudeBar(QPainter* pPainter, CTexture* pTexture, double dDeltaTime)
 {
     // Get flight data
-    CAirbusData* pAltitude_m = getData(adAir_Altitude_m);
-    CAirbusData* pVerticalSpeed_ms = getData(adAir_VerticalSpeed_ms);
-
-    double dAircraftAltitude_m = 0.0;
-    double dAircraftAltitude_f = 0.0;
-    double dAircraftVerticalSpeed_ms = 0.0;
-
-    if (pAltitude_m != NULL)
-    {
-        dAircraftAltitude_m = pAltitude_m->getData().toDouble();
-        dAircraftAltitude_f = dAircraftAltitude_m * FAC_METERS_TO_FEET;
-    }
-
-    if (pVerticalSpeed_ms != NULL)
-    {
-        dAircraftVerticalSpeed_ms = pVerticalSpeed_ms->getData().toDouble();
-    }
+    double dAircraftAltitude_m = GETDATA_DOUBLE(adAir_Altitude_m);
+    double dAircraftAltitude_f = dAircraftAltitude_m * FAC_METERS_TO_FEET;
+    double dAircraftVerticalSpeed_ms = GETDATA_DOUBLE(adAir_VerticalSpeed_ms);
 
     // Compute nearest flight level
     int iNearestFlightLevel = ( ((int) (dAircraftAltitude_f / 100.0) ) * 100);
 
     // Compute coordinates
-    double X = m_rAltitudeBar.left() * pTexture->getImage().width();
-    double Y = m_rAltitudeBar.top() * pTexture->getImage().height();
-    double W = m_rAltitudeBar.width() * pTexture->getImage().width();
-    double H = m_rAltitudeBar.height() * pTexture->getImage().height();
+    double X = m_rAltitudeBar.left() * pTexture->image().width();
+    double Y = m_rAltitudeBar.top() * pTexture->image().height();
+    double W = m_rAltitudeBar.width() * pTexture->image().width();
+    double H = m_rAltitudeBar.height() * pTexture->image().height();
     double W2 = W / 2.00;
     // double W3 = W / 3.00;
     // double W4 = W / 4.00;
@@ -355,6 +315,7 @@ void CAirbusDMC::drawAltitudeBar(QPainter* pPainter, CTexture* pTexture, double 
 
     // Set main font
     pPainter->setFont(m_fMainFont);
+    pPainter->setPen(A320_Color_Green);
 
     // Altitude background
     pPainter->setPen(A320_Color_White);
@@ -390,60 +351,36 @@ void CAirbusDMC::drawAltitudeBar(QPainter* pPainter, CTexture* pTexture, double 
 
 void CAirbusDMC::drawFMA(QPainter* pPainter, CTexture* pTexture, double dDeltaTime)
 {
-    CAirbusData* pFCU_AutoPilot1_Engaged = getData(adFCU_AutoPilot1_Engaged);
-    CAirbusData* pFCU_AutoPilot2_Engaged = getData(adFCU_AutoPilot2_Engaged);
-    CAirbusData* pFCU_AutoThrust_Engaged = getData(adFCU_AutoThrust_Engaged);
-    CAirbusData* pFG_LateralMode_alm = getData(adFG_LateralMode_alm);
-    CAirbusData* pFG_VerticalMode_avm = getData(adFG_VerticalMode_avm);
-
-    bool bFCU_AutoPilot1_Engaged = false;
-    bool bFCU_AutoPilot2_Engaged = false;
-    bool bFCU_AutoThrust_Engaged = false;
-    EAirbusLateralMode eFG_LateralMode_alm = almNone;
-    EAirbusVerticalMode eFG_VerticalMode_avm = avmNone;
-
-    if (pFCU_AutoPilot1_Engaged != NULL)
-    {
-        bFCU_AutoPilot1_Engaged = pFCU_AutoPilot1_Engaged->getData().toBool();
-    }
-
-    if (pFCU_AutoPilot2_Engaged != NULL)
-    {
-        bFCU_AutoPilot2_Engaged = pFCU_AutoPilot2_Engaged->getData().toBool();
-    }
-
-    if (pFCU_AutoThrust_Engaged != NULL)
-    {
-        bFCU_AutoThrust_Engaged = pFCU_AutoThrust_Engaged->getData().toBool();
-    }
-
-    if (pFG_LateralMode_alm != NULL)
-    {
-        eFG_LateralMode_alm = (EAirbusLateralMode) pFG_LateralMode_alm->getData().toInt();
-    }
-
-    if (pFG_VerticalMode_avm != NULL)
-    {
-        eFG_VerticalMode_avm = (EAirbusVerticalMode) pFG_VerticalMode_avm->getData().toInt();
-    }
+    bool bFCU_AutoPilot1_Engaged = GETDATA_BOOL(adFCU_AutoPilot1_Engaged_bool);
+    bool bFCU_AutoPilot2_Engaged = GETDATA_BOOL(adFCU_AutoPilot2_Engaged_bool);
+    bool bFCU_AutoThrust_Engaged = GETDATA_BOOL(adFCU_AutoThrust_Engaged_bool);
+    EAirbusLateralMode eFG_LateralMode_alm = (EAirbusLateralMode) GETDATA_INT(adFG_LateralMode_alm);
+    EAirbusVerticalMode eFG_VerticalMode_avm = (EAirbusVerticalMode) GETDATA_INT(adFG_VerticalMode_avm);
+    EAirbusFlightPhase eFG_FlightPhase_fp = (EAirbusFlightPhase) GETDATA_INT(adFG_FlightPhase_fp);
 
     // Compute coordinates
-    double X = m_rFMA.left() * pTexture->getImage().width();
-    double Y = m_rFMA.top() * pTexture->getImage().height();
-    double W = m_rFMA.width() * pTexture->getImage().width();
-    double H = m_rFMA.height() * pTexture->getImage().height();
+    double X = m_rFMA.left() * pTexture->image().width();
+    double Y = m_rFMA.top() * pTexture->image().height();
+    double W = m_rFMA.width() * pTexture->image().width();
+    double H = m_rFMA.height() * pTexture->image().height();
     double W5 = W / 5.0;
     double H3 = H / 3.0;
 
     QRectF rPart1_1(X + W5 * 0, Y + H3 * 0, W5, H3);	// FMA Col 1 Row 1
+    QRectF rPart1_2(X + W5 * 0, Y + H3 * 1, W5, H3);	// FMA Col 1 Row 2
+
     QRectF rPart2_1(X + W5 * 1, Y + H3 * 0, W5, H3);	// FMA Col 2 Row 1
+
     QRectF rPart3_1(X + W5 * 2, Y + H3 * 0, W5, H3);	// FMA Col 3 Row 1
+
     QRectF rPart4_1(X + W5 * 3, Y + H3 * 0, W5, H3);	// FMA Col 4 Row 1
+
     QRectF rPart5_1(X + W5 * 4, Y + H3 * 0, W5, H3);	// FMA Col 5 Row 1
     QRectF rPart5_2(X + W5 * 4, Y + H3 * 1, W5, H3);	// FMA Col 5 Row 2
     QRectF rPart5_3(X + W5 * 4, Y + H3 * 2, W5, H3);	// FMA Col 5 Row 3
 
     QString sTextPart1_1;
+    QString sTextPart1_2;
     QString sTextPart2_1;
     QString sTextPart3_1;
     QString sTextPart4_1;
@@ -472,30 +409,63 @@ void CAirbusDMC::drawFMA(QPainter* pPainter, CTexture* pTexture, double dDeltaTi
             case almNav :
                 sTextPart3_1 = "NAV";
                 break;
+            case almAppNav :
+                sTextPart3_1 = "APP NAV";
+                break;
+            case almLoc :
+                sTextPart3_1 = "LOC";
+                break;
+            case almRunway :
+                sTextPart3_1 = "RWY";
+                break;
+            case almRunwayTrack :
+                sTextPart3_1 = "RWY TRK";
+                break;
+            case almGoAroundTrack :
+                sTextPart3_1 = "GA TRK";
+                break;
+            case almRollOut :
+                sTextPart3_1 = "ROLL OUT";
+                break;
         }
 
         switch (eFG_VerticalMode_avm)
         {
-            case avmVerticalSpeedHold :
-                sTextPart2_1 = "VS";
-                break;
-            case avmAltitudeHold :
-                sTextPart2_1 = "ALT";
-                break;
-            case avmNav :
-                sTextPart2_1 = "NAV";
-                break;
             case avmOpenClimb :
                 sTextPart2_1 = "OP CLB";
                 break;
             case avmOpenDescent :
                 sTextPart2_1 = "OP DES";
                 break;
+            case avmVerticalSpeedHold :
+                sTextPart2_1 = "VS";
+                break;
+            case avmAltitudeHold :
+                sTextPart2_1 = "ALT";
+                break;
             case avmClimb :
                 sTextPart2_1 = "CLB";
                 break;
             case avmDescent :
                 sTextPart2_1 = "DES";
+                break;
+            case avmAltitudeConstraint :
+                sTextPart2_1 = "ALT CSTR";
+                break;
+            case avmAltitudeCruise :
+                sTextPart2_1 = "ALT CRZ";
+                break;
+            case avmGlideSlope :
+                sTextPart2_1 = "GS";
+                break;
+            case avmFinal :
+                sTextPart2_1 = "FINAL";
+                break;
+            case avmFinalApproach :
+                sTextPart2_1 = "FINAL APP";
+                break;
+            case avmFlare :
+                sTextPart2_1 = "FLARE";
                 break;
         }
     }
@@ -506,9 +476,12 @@ void CAirbusDMC::drawFMA(QPainter* pPainter, CTexture* pTexture, double dDeltaTi
         sTextPart5_3 = "A/THR";
     }
 
+    sTextPart1_2 = QString::number(eFG_FlightPhase_fp);
+
     // Col 1
     pPainter->setPen(A320_Color_Green);
     pPainter->drawText(rPart1_1, Qt::AlignCenter, sTextPart1_1);
+    pPainter->drawText(rPart1_2, Qt::AlignCenter, sTextPart1_2);
 
     // Col 2
     pPainter->setPen(A320_Color_Green);

@@ -1,13 +1,12 @@
 
 #pragma once
 
+// Application
 #include "components_a320_global.h"
+#include "CAirbusFlightComputer.h"
 #include "Constants.h"
 
 //-------------------------------------------------------------------------------------------------
-
-// Quick3D
-#include "CAirbusFlightComputer.h"
 
 class C3DScene;
 
@@ -20,7 +19,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusSEC(C3DScene* pScene);
@@ -41,10 +40,13 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    virtual QString getClassName() const { return ClassName_CAirbusSEC; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusSEC; }
 
     //!
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
+
+    //!
+    virtual void work(double dDeltaTime) Q_DECL_OVERRIDE;
 
     //-------------------------------------------------------------------------------------------------
     // Control methods

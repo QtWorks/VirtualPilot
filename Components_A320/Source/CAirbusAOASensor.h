@@ -18,7 +18,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusAOASensor(C3DScene* pScene);
@@ -39,7 +39,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    virtual QString getClassName() const { return ClassName_CAirbusAOASensor; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusAOASensor; }
 
     //!
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;

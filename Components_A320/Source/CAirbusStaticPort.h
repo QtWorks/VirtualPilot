@@ -3,9 +3,9 @@
 
 // Application
 #include "components_a320_global.h"
-#include "Constants.h"
 #include "CAirbusComponent.h"
 #include "CAirbusDataSupplier.h"
+#include "Constants.h"
 
 //-------------------------------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    static CComponent* instanciator(C3DScene* pScene);
+    static CComponent* instantiator(C3DScene* pScene);
 
     //!
     CAirbusStaticPort(C3DScene* pScene);
@@ -39,7 +39,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //!
-    virtual QString getClassName() const { return ClassName_CAirbusStaticPort; }
+    virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusStaticPort; }
 
     //!
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
