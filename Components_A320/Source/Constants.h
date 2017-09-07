@@ -55,6 +55,7 @@
 #define EquipName_FWC                       "Flight Warning Computer"
 #define EquipName_GPS                       "Global Positioning System"
 #define EquipName_GPWS                      "Ground Proximity Warning System"
+#define EquipName_IDG                       "Integrated Drive Generator"
 #define EquipName_MCDU                      "Multipurpose Control and Display Unit"
 #define EquipName_ND                        "Navigation Display"
 #define EquipName_PFD                       "Primary Flight Display"
@@ -225,17 +226,17 @@
 //-------------------------------------------------------------------------------------------------
 // MCDU colors
 
-#define A320_Color_Black                    QColor(  0,   0,   0)
-#define A320_Color_White                    QColor(255, 255, 255)
-#define A320_Color_Red                      QColor(255,   0,   0)
-#define A320_Color_Green                    QColor(  0, 255,   0)
-#define A320_Color_Blue                     QColor(  0, 200, 255)
-#define A320_Color_Yellow                   QColor(255, 255,   0)
 #define A320_Color_Amber                    QColor(255, 128,   0)
-#define A320_Color_Purple                   QColor(255,   0, 128)
-#define A320_Color_Gray                     QColor(128, 128, 128)
+#define A320_Color_Black                    QColor(  0,   0,   0)
+#define A320_Color_Blue                     QColor(  0, 200, 255)
 #define A320_Color_DarkGray                 QColor( 64,  64,  64)
+#define A320_Color_Gray                     QColor(128, 128, 128)
+#define A320_Color_Green                    QColor(  0, 255,   0)
 #define A320_Color_Ground                   QColor( 96,  64,   0)
+#define A320_Color_Purple                   QColor(255,   0, 128)
+#define A320_Color_Red                      QColor(255,   0,   0)
 #define A320_Color_Sky                      A320_Color_Blue
+#define A320_Color_White                    QColor(255, 255, 255)
+#define A320_Color_Yellow                   QColor(255, 255,   0)
 
 #define A320_MCDU_FONT                      "Calibri"

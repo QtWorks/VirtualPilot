@@ -22,7 +22,6 @@ class C3DScene;
 #define FP_TAKEOFF_ALTITUDE_AGL_THRESHOLD   (30.0 * FAC_FEET_TO_METERS)
 #define FP_CLIMB_ALTITUDE_THRESHOLD         (500.0 * FAC_FEET_TO_METERS)
 #define FP_CRUISE_VERTSPEED_THRESHOLD       (500.0 * FAC_FPM_TO_MS)
-#define FP_CRUISE_ALTITUDE_AGL_THRESHOLD    (500.0 * FAC_FEET_TO_METERS)
 #define FP_DESCENT_ALTITUDE_AGL_THRESHOLD   (2500.0 * FAC_FEET_TO_METERS)
 #define FP_LAND_GROUNDSPEED_THRESHOLD       (50.0 * FAC_KNOTS_TO_MS)
 
@@ -117,7 +116,7 @@ protected:
     CPIDController          m_pidVerticalSpeed;
 
     // Commandes de poussée
-    double                  m_dCommandedVelocity_ms;
+    double                  m_dCommandedAirspeed_ms;
     double                  m_dCommandedAcceleration_ms;
     double                  m_dCommandedThrust_norm;
 
