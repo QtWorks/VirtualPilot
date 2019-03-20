@@ -48,14 +48,14 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //-------------------------------------------------------------------------------------------------
-    // Inherited methods
+    // Overridden methods
     //-------------------------------------------------------------------------------------------------
 
     //!
     virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusELAC; }
 
     //! Loads this object's parameters
-    virtual void loadParameters(const QString& sBaseFile, CXMLNode xComponent) Q_DECL_OVERRIDE;
+    virtual void loadParameters(const QString& sBaseFile, const CXMLNode& xComponent) Q_DECL_OVERRIDE;
 
     //! Solves the links of this object
     virtual void solveLinks(C3DScene* pScene) Q_DECL_OVERRIDE;
@@ -90,4 +90,6 @@ protected:
     Math::CVector2					m_vStick;
     Math::CVector2					m_vStickPrevious;
     Math::CVector3					m_vCommandedAttitude;
+
+    double                          m_dMaxRoll_deg;
 };

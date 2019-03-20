@@ -3,7 +3,9 @@
 #include <QFileDialog>
 
 // qt-plus
+#include "CSingletonPool.h"
 #include "CLogger.h"
+#include "CPluginLoader.h"
 
 // Quick3D
 #include "CConsoleBoard.h"
@@ -11,6 +13,9 @@
 #include "CComponentFactory.h"
 #include "CComponentLoader.h"
 #include "CController.h"
+
+// Generic components
+#include "../../Components_Generic/Source/Constants.h"
 
 // Application
 #include "VirtualPilot.h"
@@ -28,20 +33,24 @@ VirtualPilot::VirtualPilot(QString sSceneFileName, QWidget *parent)
 VirtualPilot::VirtualPilot(QString sSceneFileName, QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags)
 #endif
+    , m_pMap(nullptr)
     , m_tTimer(this)
-    , m_FPS(100)
+    , m_dMapScale(1.0)
     , m_bProcessEvents(true)
     , m_bRun(true)
     , m_bRealTime(false)
 {
-    LOG_DEBUG("VirtualPilot::VirtualPilot()");
+    CSingletonPool::init();
 
     // CConsoleBoard::getInstance()->start();
 
     ui.setupUi(this);
 
+    ui.mapView->setScene(new QGraphicsScene(ui.mapView));
+
     m_sPathVehicles = QCoreApplication::applicationDirPath() + "/Vehicles";
 
+    CPluginLoader::getInstance()->loadPlugin(CPluginLoader::getInstance()->pluginPath() + "/" + GENERIC_PLUGIN);
     CComponentFactory::getInstance()->registerCoreComponents();
 
     m_pView = new CView(ui.Render1);
@@ -49,7 +58,7 @@ VirtualPilot::VirtualPilot(QString sSceneFileName, QWidget *parent, Qt::WFlags f
     m_pView->setScene(m_pScene);
     m_pScene->setShaderQuality(0.8);
 
-    // Gestion des évènements
+    // Event handling
     connect(&m_tTimer, SIGNAL(timeout()), this, SLOT(onTimer()));
 
     connect(ui.actionLoad_scene, SIGNAL(triggered()), this, SLOT(onLoadSceneClicked()));
@@ -62,8 +71,16 @@ VirtualPilot::VirtualPilot(QString sSceneFileName, QWidget *parent, Qt::WFlags f
     connect(ui.m_sFogLevel, SIGNAL(valueChanged(int)), this, SLOT(onFogLevelChanged(int)));
     connect(ui.m_sWindLevel, SIGNAL(valueChanged(int)), this, SLOT(onWindLevelChanged(int)));
     connect(ui.m_sShaderQuality, SIGNAL(valueChanged(int)), this, SLOT(onShaderQualityChanged(int)));
+    connect(ui.m_sOverlookFOV, SIGNAL(valueChanged(int)), this, SLOT(onOverlookFOVChanged(int)));
 
+    connect(ui.m_chkBoundsOnly, SIGNAL(clicked()), this, SLOT(onBoundsOnlyClicked()));
+    connect(ui.m_chkNormalsOnly, SIGNAL(clicked()), this, SLOT(onNormalsOnlyClicked()));
     connect(ui.m_chkOverlook, SIGNAL(clicked()), this, SLOT(onOverlookClicked()));
+
+    connect(ui.m_btMapZoomIn, SIGNAL(clicked()), this, SLOT(onMapZoomInClicked()));
+    connect(ui.m_btMapZoomOut, SIGNAL(clicked()), this, SLOT(onMapZoomOutClicked()));
+    connect(ui.m_btMapZoomInFast, SIGNAL(clicked()), this, SLOT(onMapZoomInFastClicked()));
+    connect(ui.m_btMapZoomOutFast, SIGNAL(clicked()), this, SLOT(onMapZoomOutFastClicked()));
 
     loadScene(QCoreApplication::applicationDirPath() + "/" + sSceneFileName);
 
@@ -78,8 +95,6 @@ VirtualPilot::VirtualPilot(QString sSceneFileName, QWidget *parent, Qt::WFlags f
 
 VirtualPilot::~VirtualPilot()
 {
-    LOG_DEBUG("VirtualPilot::~VirtualPilot()");
-
     CComponentFactory::killInstance();
 }
 
@@ -87,7 +102,7 @@ VirtualPilot::~VirtualPilot()
 
 void VirtualPilot::readPreferences()
 {
-    CXMLNode xVehicle = CPreferencesManager::getInstance()->getPreferences().getNodeByTagName("Vehicle");
+    CXMLNode xVehicle = CPreferencesManager::getInstance()->preferences().getNodeByTagName("Vehicle");
 
     if (xVehicle.attributes()["Default"].isEmpty() == false)
     {
@@ -101,7 +116,7 @@ void VirtualPilot::readPreferences()
 
 void VirtualPilot::loadScene(QString sFileName)
 {
-    LOG_DEBUG("VirtualPilot::VirtualPilot() : instanciating scene...");
+    LOG_METHOD_DEBUG("Instanciating scene...");
 
     m_pScene->clear();
 
@@ -109,9 +124,9 @@ void VirtualPilot::loadScene(QString sFileName)
     m_pScene->viewports()[0]->setEnabled(true);
 
     //-----------------------------------------------
-    // Chargement des composants
+    // Load components
 
-    LOG_DEBUG("VirtualPilot::VirtualPilot() : loading components...");
+    LOG_METHOD_DEBUG("Loading components...");
 
     QVector<QSP<CComponent> > vComponents = CComponentLoader::getInstance()->load(sFileName, m_pScene);
 
@@ -119,6 +134,7 @@ void VirtualPilot::loadScene(QString sFileName)
 
     //-----------------------------------------------
 
+    showMap();
     onResize();
 }
 
@@ -126,7 +142,7 @@ void VirtualPilot::loadScene(QString sFileName)
 
 void VirtualPilot::loadVehicle(QString sFileName)
 {
-    LOG_DEBUG("VirtualPilot::loadVehicle() : loading component...");
+    LOG_METHOD_DEBUG("Loading component...");
 
     CGeoloc playerGeoloc;
     CVector3 playerRotation;
@@ -135,7 +151,7 @@ void VirtualPilot::loadVehicle(QString sFileName)
 
     if (pComponent != nullptr)
     {
-        QVector<QSP<CComponent> > vComponents = m_pScene->componentsByTag("PLAYER");
+        QVector<QSP<CComponent> > vComponents = m_pScene->componentsByTag(TagName_Player);
 
         if (vComponents.count() > 0)
         {
@@ -143,13 +159,13 @@ void VirtualPilot::loadVehicle(QString sFileName)
             playerRotation = vComponents[0]->rotation();
         }
 
-        LOG_DEBUG("VirtualPilot::loadVehicle() : adding component to scene...");
+        LOG_METHOD_DEBUG("Adding component to scene...");
 
-        m_pScene->deleteComponentsByTag("PLAYER");
+        m_pScene->deleteComponentsByTag(TagName_Player);
         m_pScene->addComponent(pComponent);
         m_pScene->setController(pComponent->controller());
 
-        pComponent->setTag("PLAYER");
+        pComponent->setTag(TagName_Player);
 
         if (playerGeoloc.valid())
         {
@@ -168,6 +184,36 @@ void VirtualPilot::loadVehicle(QString sFileName)
             LOG_ERROR("VirtualPilot::loadVehicle() : camera not found");
 
             m_pScene->viewports()[0]->setCamera(QSP<CCamera>());
+        }
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::showMap()
+{
+    m_gMapCenter = CGeoloc(48.998321, 2.601997, 0.0);
+
+    foreach (QSP<CComponent> pComponent, m_pScene->components())
+    {
+        QSP<CWorldTerrain> pTerrain = QSP_CAST(CWorldTerrain, pComponent);
+
+        if (pTerrain != nullptr && pTerrain->heights() != nullptr)
+        {
+            if (m_pMap != nullptr)
+                delete m_pMap;
+
+            m_pMap = new CWorldTerrainMap(m_pScene);
+            m_pMap->setTerrain(pTerrain);
+            m_pMap->setCenter(m_gMapCenter);
+            m_pMap->setScale(m_dMapScale);
+            m_pMap->updateImage();
+            ui.mapView->scene()->clear();
+            QGraphicsPixmapItem* pItem = new QGraphicsPixmapItem(QPixmap::fromImage(m_pMap->image()));
+            pItem->setScale(6.0);
+            ui.mapView->scene()->addItem(pItem);
+
+            break;
         }
     }
 }
@@ -206,8 +252,6 @@ void VirtualPilot::onTimer()
         double dDeltaTime = (double) m_tPreviousTime.msecsTo(tCurrentTime) / 1000.0;
         m_tPreviousTime = tCurrentTime;
 
-        m_FPS.append(1.0 / dDeltaTime);
-
         if (m_bRealTime)
         {
             m_pScene->setTimeOfDay(QDateTime::currentDateTime().time());
@@ -216,69 +260,7 @@ void VirtualPilot::onTimer()
         m_pScene->updateScene(dDeltaTime);
         m_pView->update(dDeltaTime);
 
-        CGeoloc ViewGeoloc;
-        CVector3 ViewRotation;
-        CVector3 ControledVelocity;
-        CVector3 ControledTorque;
-        CVector3 Acceleration;
-        CVector3 TorqueAcceleration;
-        double dSpeedMS = 0.0;
-
-        if (m_pScene->controller() != nullptr && m_pScene->controller()->getPositionTarget())
-        {
-            QSP<CPhysicalComponent> pPhysical = QSP_CAST(CPhysicalComponent, m_pScene->controller()->getPositionTarget()->root());
-
-            if (pPhysical != nullptr)
-            {
-                ViewGeoloc = pPhysical->geoloc();
-                ControledVelocity = pPhysical->velocity_ms();
-                ControledTorque = pPhysical->angularVelocity_rs();
-                dSpeedMS = ControledVelocity.magnitude();
-            }
-        }
-
-        if (m_pScene->controller() != nullptr && m_pScene->controller()->getRotationTarget())
-        {
-            QSP<CPhysicalComponent> pPhysical = QSP_CAST(CPhysicalComponent, m_pScene->controller()->getRotationTarget()->root());
-
-            if (pPhysical != nullptr)
-            {
-                ViewRotation = pPhysical->rotation();
-            }
-        }
-
-        QString sInfo = QString(
-                    "FPS %1 - LLA (%2, %3, %4) Rotation (%5, %6, %7) Kts %8 \n"
-                    "Physics Vel (%9, %10, %11) Torque (%12, %13, %14) \n"
-                    "Drawn : meshes %15 polys %16 chunks %17 (Existing: components %18, chunks %19, terrains %20) \n"
-                    )
-                .arg((int) m_FPS.getAverage())
-                .arg(QString::number(ViewGeoloc.Latitude, 'f', 6))
-                .arg(QString::number(ViewGeoloc.Longitude, 'f', 6))
-                .arg(QString::number(ViewGeoloc.Altitude, 'f', 1))
-
-                .arg(QString::number(Math::Angles::toDeg(ViewRotation.X), 'f', 2))
-                .arg(QString::number(Math::Angles::toDeg(ViewRotation.Y), 'f', 2))
-                .arg(QString::number(Math::Angles::toDeg(ViewRotation.Z), 'f', 2))
-
-                .arg(QString::number(dSpeedMS * 1.9438444924406046, 'f', 1))
-
-                .arg(QString::number(ControledVelocity.X, 'f', 2))
-                .arg(QString::number(ControledVelocity.Y, 'f', 2))
-                .arg(QString::number(ControledVelocity.Z, 'f', 2))
-                .arg(QString::number(Math::Angles::toDeg(ControledTorque.X), 'f', 2))
-                .arg(QString::number(Math::Angles::toDeg(ControledTorque.Y), 'f', 2))
-                .arg(QString::number(Math::Angles::toDeg(ControledTorque.Z), 'f', 2))
-
-                .arg(m_pScene->m_tStatistics.m_iNumMeshesDrawn)
-                .arg(m_pScene->m_tStatistics.m_iNumPolysDrawn)
-                .arg(m_pScene->m_tStatistics.m_iNumChunksDrawn)
-                .arg(CComponent::getNumComponents())
-                .arg(CComponent::componentCounter()[ClassName_CWorldChunk])
-                .arg(CComponent::componentCounter()[ClassName_CTerrain])
-                ;
-
-        ui.m_lInfo->setText(sInfo);
+        ui.m_lInfo->setText(m_pScene->debugInfo());
     }
 
     m_tTimer.start();
@@ -376,7 +358,60 @@ void VirtualPilot::onShaderQualityChanged(int iValue)
 
 //-------------------------------------------------------------------------------------------------
 
+void VirtualPilot::onOverlookFOVChanged(int iValue)
+{
+    m_pScene->setOverlookFOV((double) iValue);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onBoundsOnlyClicked()
+{
+    m_pScene->setBoundsOnly(ui.m_chkBoundsOnly->checkState() == Qt::Checked);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onNormalsOnlyClicked()
+{
+    m_pScene->setNormalsOnly(ui.m_chkNormalsOnly->checkState() == Qt::Checked);
+}
+
+//-------------------------------------------------------------------------------------------------
+
 void VirtualPilot::onOverlookClicked()
 {
     m_pScene->setOverlookScene(ui.m_chkOverlook->checkState() == Qt::Checked);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onMapZoomInClicked()
+{
+    m_dMapScale = Angles::clipDouble(m_dMapScale + 0.5, 0.5, 10000.0);
+    showMap();
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onMapZoomOutClicked()
+{
+    m_dMapScale = Angles::clipDouble(m_dMapScale - 0.5, 0.5, 10000.0);
+    showMap();
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onMapZoomInFastClicked()
+{
+    m_dMapScale = Angles::clipDouble(m_dMapScale * 5.0, 0.5, 10000.0);
+    showMap();
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void VirtualPilot::onMapZoomOutFastClicked()
+{
+    m_dMapScale = Angles::clipDouble(m_dMapScale / 5.0, 0.5, 10000.0);
+    showMap();
 }

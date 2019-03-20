@@ -30,14 +30,26 @@ CAirbusFCU::CAirbusFCU(C3DScene* pScene)
     , m_dSelectedAltitude_m(10000.0 * FAC_FEET_TO_METERS)
     , m_dSelectedVelocity_ms(200.0 * FAC_KNOTS_TO_MS)
 {
-    LOG_DEBUG("CAirbusFCU::CAirbusFCU()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
 CAirbusFCU::~CAirbusFCU()
 {
-    LOG_DEBUG("CAirbusFCU::~CAirbusFCU()");
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFCU::setLateralManaged(bool bValue)
+{
+    m_bLateralManaged = bValue;
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFCU::setVerticalManaged(bool bValue)
+{
+    m_bVerticalManaged = bValue;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -94,4 +106,22 @@ void CAirbusFCU::decrement_SelectedHeading(bool bFast)
     m_dSelectedHeading--;
 
     m_dSelectedHeading = Math::Angles::clipAngleDegree(m_dSelectedHeading);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFCU::increment_SelectedAltitude(bool bFast)
+{
+    m_dSelectedAltitude_m += 100.0 * FAC_FEET_TO_METERS;
+
+    m_dSelectedAltitude_m = Math::Angles::clipDouble(m_dSelectedAltitude_m, 0.0, 90000.0 * FAC_FEET_TO_METERS);
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFCU::decrement_SelectedAltitude(bool bFast)
+{
+    m_dSelectedAltitude_m -= 100.0 * FAC_FEET_TO_METERS;
+
+    m_dSelectedAltitude_m = Math::Angles::clipDouble(m_dSelectedAltitude_m, 0.0, 90000.0 * FAC_FEET_TO_METERS);
 }

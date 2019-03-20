@@ -29,20 +29,19 @@ CAirbusELAC::CAirbusELAC(C3DScene* pScene)
     , m_pidYaw(1.0, 0.0, 0.001)
     , m_pidPitch(1.0, 0.0, 0.001)
     , m_pidRoll(1.0, 0.0, 0.001)
+    , m_dMaxRoll_deg(67.0)
 {
-    LOG_DEBUG("CAirbusELAC::CAirbusELAC()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
 CAirbusELAC::~CAirbusELAC()
 {
-    LOG_DEBUG("CAirbusELAC::~CAirbusELAC()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void CAirbusELAC::loadParameters(const QString& sBaseFile, CXMLNode xComponent)
+void CAirbusELAC::loadParameters(const QString& sBaseFile, const CXMLNode& xComponent)
 {
     CAirbusFlightComputer::loadParameters(sBaseFile, xComponent);
 
@@ -105,6 +104,8 @@ void CAirbusELAC::work(double dDeltaTime)
         m_vStick.X = GETDATA_DOUBLE(adStick_CAPT_x);
         m_vStick.Y = GETDATA_DOUBLE(adStick_CAPT_y);
 
+        Q_UNUSED(bFCU_AutoPilot2_Engaged);
+
         //-----------------------------------------------------------------------------
 
         if (m_vStick.X == 0.0 && m_vStickPrevious.X != 0.0)
@@ -125,7 +126,7 @@ void CAirbusELAC::work(double dDeltaTime)
             }
             else
             {
-                dFG_CommandedRollVelocity_ds = m_vCommandedAttitude.Z - dInertial_Roll_deg;
+                dFG_CommandedRollVelocity_ds = (m_vCommandedAttitude.Z - dInertial_Roll_deg) * 5.0;
                 dFG_CommandedRollVelocity_ds = Math::Angles::clipDouble(dFG_CommandedRollVelocity_ds, -10.0, 10.0);
             }
 
@@ -135,14 +136,26 @@ void CAirbusELAC::work(double dDeltaTime)
             }
             else
             {
-                dFG_CommandedPitchVelocity_ds = m_vCommandedAttitude.X - dInertial_Pitch_deg;
+                dFG_CommandedPitchVelocity_ds = (m_vCommandedAttitude.X - dInertial_Pitch_deg) * 10.0;
                 dFG_CommandedPitchVelocity_ds = Math::Angles::clipDouble(dFG_CommandedPitchVelocity_ds, -5.0, 5.0);
             }
         }
 
         //-----------------------------------------------------------------------------
+        // Flight enveloppe protection
 
-        // Calcul PID roulis
+        double dNormalizedRoll = Math::Angles::clipAngleDegreePIMinusPI(dInertial_Roll_deg);
+
+        if (
+                (dFG_CommandedRollVelocity_ds > 0.0 && dNormalizedRoll >= m_dMaxRoll_deg) ||
+                (dFG_CommandedRollVelocity_ds < 0.0 && dNormalizedRoll <= -m_dMaxRoll_deg)
+                )
+        {
+            dFG_CommandedRollVelocity_ds = 0.0;
+        }
+
+        //-----------------------------------------------------------------------------
+        // Compute roll PID
 
         m_pidRoll.setSetPoint(dFG_CommandedRollVelocity_ds);
         m_pidRoll.update(dInertial_RollVelocity_ds, dDeltaTime * 1000.0);
@@ -155,7 +168,8 @@ void CAirbusELAC::work(double dDeltaTime)
             pRightWing->setAileronAngle_norm(dRollOutput);
         }
 
-        // Calcul PID tanguage
+        //-----------------------------------------------------------------------------
+        // Compute pitch PID
 
         m_pidPitch.setSetPoint(dFG_CommandedPitchVelocity_ds);
         m_pidPitch.update(dInertial_PitchVelocity_ds, dDeltaTime * 1000.0);

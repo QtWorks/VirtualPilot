@@ -47,6 +47,7 @@ enum EMCDUKey
     mk0 = 48, mk1, mk2, mk3, mk4, mk5, mk6, mk7, mk8, mk9,
     mkA = 65, mkB, mkC, mkD, mkE, mkF, mkG, mkH, mkI, mkJ, mkK, mkL, mkM,
     mkN, mkO, mkP, mkQ, mkR, mkS, mkT, mkU, mkV, mkW, mkX, mkY, mkZ,
+    mkDelete = 127,
     mk1L = 300, mk2L, mk3L, mk4L, mk5L, mk6L,
     mk1R, mk2R, mk3R, mk4R, mk5R, mk6R,
     mkUp, mkDown, mkLeft, mkRight,
@@ -58,18 +59,20 @@ enum EMCDUKey
 
 //-------------------------------------------------------------------------------------------------
 
-#define CHAR_PH                 '\219'
+#define CHAR_PH                         '\219'
 
-#define MCDU_W                  24
-#define MCDU_H                  14
-#define FPLN_WAYP_PER_PAGE      5
+#define MCDU_SCREEN_WIDTH               24
+#define MCDU_SCREEN_HEIGHT              14
+#define MCDU_FPLN_WAYP_PER_PAGE         5
 
-#define FORMAT_COMPANY_ROUTE    "__________"
-#define FORMAT_ICAO_FROM_TO     "____/____"
+#define MCDU_FORMAT_COMPANY_ROUTE       "__________"
+#define MCDU_FORMAT_ICAO_FROM_TO        "____/____"
 
-#define TEXT_FPLN_DISCONTINUITY " F-PLN DISCONTINUITY"
-#define TEXT_FPLN_HEADER        "          UTC  SPD/ALT  "
-#define TEXT_FPLN_FOOTER        " DEST     UTC  DIST EFOB"
+#define MCDU_TEXT_FPLN_DISCONTINUITY    " F-PLN DISCONTINUITY"
+#define MCDU_TEXT_FPLN_HEADER           "          UTC  SPD/ALT  "
+#define MCDU_TEXT_FPLN_FOOTER           " DEST     UTC  DIST EFOB"
+
+#define MCDU_ERROR_BAD_FORMAT           "BAD FORMAT"
 
 //-------------------------------------------------------------------------------------------------
 
@@ -101,7 +104,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //-------------------------------------------------------------------------------------------------
-    // Inherited methods
+    // Overridden methods
     //-------------------------------------------------------------------------------------------------
 
     //!
@@ -111,7 +114,7 @@ public:
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
 
     //!
-    virtual void updateTexture(CTexture* pTexture, double dDeltaTime);
+    virtual void updateTexture(CTexture* pTexture, double dDeltaTime) Q_DECL_OVERRIDE;
 
     //-------------------------------------------------------------------------------------------------
     // Control methods
@@ -175,6 +178,9 @@ public:
     //!
     void sendData(EMCDUDataSet eDataName, QVariant vValue);
 
+    //!
+    void fillTables();
+
     //-------------------------------------------------------------------------------------------------
     // Inner classes
     //-------------------------------------------------------------------------------------------------
@@ -203,8 +209,9 @@ protected:
 
     EMCDUPage                   m_ePage;
     int                         m_iSubPage;
-    MCDUChar                    m_aScreen[MCDU_W][MCDU_H];
+    MCDUChar                    m_aScreen[MCDU_SCREEN_WIDTH][MCDU_SCREEN_HEIGHT];
     QString                     m_sScratchPad;
+    QString                     m_sError;
     QMap<QString, EMCDUKey>     m_mEventToKey;
 
     int                         m_iLastHeight;

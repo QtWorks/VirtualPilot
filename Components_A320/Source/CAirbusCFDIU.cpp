@@ -27,19 +27,17 @@ CComponent* CAirbusCFDIU::instantiator(C3DScene* pScene)
 CAirbusCFDIU::CAirbusCFDIU(C3DScene* pScene)
     : CAirbusFlightComputer(pScene)
 {
-    LOG_DEBUG("CAirbusCFDIU::CAirbusCFDIU()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
 CAirbusCFDIU::~CAirbusCFDIU()
 {
-    LOG_DEBUG("CAirbusCFDIU::~CAirbusCFDIU()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void CAirbusCFDIU::loadParameters(const QString& sBaseFile, CXMLNode xComponent)
+void CAirbusCFDIU::loadParameters(const QString& sBaseFile, const CXMLNode& xComponent)
 {
     CAirbusFlightComputer::loadParameters(sBaseFile, xComponent);
 

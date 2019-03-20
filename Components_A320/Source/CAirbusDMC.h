@@ -12,6 +12,7 @@
 #include "Constants.h"
 #include "CAirbusFlightComputer.h"
 #include "CAirbusFlightPlan.h"
+#include "../../Components_Generic/Source/CNavaidDatabase.h"
 
 //-------------------------------------------------------------------------------------------------
 
@@ -46,7 +47,7 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //-------------------------------------------------------------------------------------------------
-    // Inherited methods
+    // Overridden methods
     //-------------------------------------------------------------------------------------------------
 
     //!
@@ -56,7 +57,11 @@ public:
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
 
     //!
-    virtual void updateTexture(CTexture* pTexture, double dDeltaTime);
+    virtual void updateTexture(CTexture* pTexture, double dDeltaTime) Q_DECL_OVERRIDE;
+
+    //-------------------------------------------------------------------------------------------------
+    // Protected control methods
+    //-------------------------------------------------------------------------------------------------
 
     //!
     void updateTexture_PFD(QPainter* pPainter, CTexture* pTexture, double dDeltaTime);
@@ -84,6 +89,9 @@ public:
 
     //!
     void drawCompass(QPainter* pPainter, CTexture* pTexture, double dDeltaTime, bool bArc);
+
+    //!
+    void drawNavaid(QPainter* pPainter, CTexture* pTexture, double dDeltaTime, const CNavaid* pNavaid, const QRectF& rect);
 
     //!
     void drawWaypoint(QPainter* pPainter, CTexture* pTexture, double dDeltaTime, const CWaypoint& wWaypoint, const QRectF& rect, bool bIsFlight);
@@ -116,14 +124,13 @@ public:
     void drawHydraulicPage(QPainter* pPainter, CTexture* pTexture, double dDeltaTime);
 
     //-------------------------------------------------------------------------------------------------
-    // Control methods
-    //-------------------------------------------------------------------------------------------------
-
-    //-------------------------------------------------------------------------------------------------
     // Properties
     //-------------------------------------------------------------------------------------------------
 
 protected:
+
+    QVector<CGeolocalized*>     m_vNavaids;
+    QDateTime                   m_tNavaidsRefreshTime;
 
     int                         m_iLastHeight;
 

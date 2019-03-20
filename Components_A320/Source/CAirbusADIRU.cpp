@@ -25,14 +25,12 @@ CAirbusADIRU::CAirbusADIRU(C3DScene* pScene)
     : CAirbusFlightComputer(pScene)
     , m_dPreviousIndicatedAirSpeed_ms(0.0)
 {
-    LOG_DEBUG("CAirbusADIRU::CAirbusADIRU()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
 CAirbusADIRU::~CAirbusADIRU()
 {
-    LOG_DEBUG("CAirbusADIRU::~CAirbusADIRU()");
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -105,11 +103,11 @@ void CAirbusADIRU::work(double dDeltaTime)
         pushData(CAirbusData(m_sName, adAir_VerticalSpeed_ms, dVerticalSpeed_ms));
 
         // Compute latitude
-        double dLatitude_deg = Angles::toDeg(pAircraft->geoloc().Latitude);
+        double dLatitude_deg = pAircraft->geoloc().Latitude;
         pushData(CAirbusData(m_sName, adGeoLoc_Latitude_deg, dLatitude_deg));
 
         // Compute longitude
-        double dLongitude_deg = Angles::toDeg(pAircraft->geoloc().Longitude);
+        double dLongitude_deg = pAircraft->geoloc().Longitude;
         pushData(CAirbusData(m_sName, adGeoLoc_Longitude_deg, dLongitude_deg));
 
         // Compute altitude

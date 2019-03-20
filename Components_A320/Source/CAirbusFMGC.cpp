@@ -8,6 +8,7 @@
 
 // Application
 #include "CAirbusFMGC.h"
+#include "../../Components_Generic/Source/Constants.h"
 
 using namespace Math;
 
@@ -37,8 +38,6 @@ CAirbusFMGC::CAirbusFMGC(C3DScene* pScene)
     , m_dCommandedAirspeed_ms(0.0)
     , m_dCommandedAcceleration_ms(0.0)
 {
-    LOG_DEBUG("CAirbusFMGC::CAirbusFMGC()");
-
     loadFlightPlan();
 
     m_tLastUpdate = QDateTime::currentDateTime();
@@ -48,28 +47,35 @@ CAirbusFMGC::CAirbusFMGC(C3DScene* pScene)
 
 CAirbusFMGC::~CAirbusFMGC()
 {
-    LOG_DEBUG("CAirbusFMGC::~CAirbusFMGC()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void CAirbusFMGC::loadFlightPlan()
+void CAirbusFMGC::loadParameters(const QString& sBaseFile, const CXMLNode& xNode)
 {
-    m_tFlightPlan.waypoints() << CWaypoint(wtAirport, "WP1", CGeoloc(19.2, 10.8, 0.0), 0.0);
+    CAirbusFlightComputer::loadParameters(sBaseFile, xNode);
 
-    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP2", CGeoloc(19.4, 10.8, 0.0), 0.0);
-    m_tFlightPlan.lastWaypoint().setMinimumAltitude_m(3000.0 * FAC_FEET_TO_METERS);
+    CXMLNode xNavaidInput = xNode.getNodeByTagName(ParamName_NavaidInput);
 
-    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP3", CGeoloc(19.5, 10.9, 0.0), 0.0);
-    m_tFlightPlan.lastWaypoint().setMinimumAltitude_m(3000.0 * FAC_FEET_TO_METERS);
+    m_rNavaids.setName(xNavaidInput.attributes()[ParamName_Name]);
+}
 
-    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP4", CGeoloc(19.5, 11.0, 0.0), 0.0);
-    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP5", CGeoloc(19.6, 11.2, 0.0), 0.0);
+//-------------------------------------------------------------------------------------------------
 
-    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP6", CGeoloc(19.6, 12.0, 0.0), 0.0);
-    m_tFlightPlan.lastWaypoint().setSelectedAltitude_m(2500.0 * FAC_FEET_TO_METERS);
+void CAirbusFMGC::solveLinks(C3DScene* pScene)
+{
+    CAirbusFlightComputer::solveLinks(pScene);
 
-    m_tFlightPlan.waypoints() << CWaypoint(wtRunway, "WP7", CGeoloc(19.6, 12.1, 0.0), 0.0);
+    m_rNavaids.solve(pScene, QSP<CComponent>(this));
+}
+
+//-------------------------------------------------------------------------------------------------
+
+void CAirbusFMGC::clearLinks(C3DScene* pScene)
+{
+    CAirbusFlightComputer::clearLinks(pScene);
+
+    m_rNavaids.clear();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -101,6 +107,29 @@ void CAirbusFMGC::work(double dDeltaTime)
 
 //-------------------------------------------------------------------------------------------------
 
+void CAirbusFMGC::loadFlightPlan()
+{
+    CGeoloc gStart(40.622021, -73.785586, 0.0);
+
+    m_tFlightPlan.waypoints() << CWaypoint(wtAirport, "WP1", CGeoloc(gStart.Latitude + 0.0, gStart.Longitude + 0.6, 0.0), 0.0);
+
+    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP2", CGeoloc(gStart.Latitude + 0.2, gStart.Longitude + 0.6, 0.0), 0.0);
+    m_tFlightPlan.lastWaypoint().setMinimumAltitude_m(3000.0 * FAC_FEET_TO_METERS);
+
+    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP3", CGeoloc(gStart.Latitude + 0.3, gStart.Longitude + 0.7, 0.0), 0.0);
+    m_tFlightPlan.lastWaypoint().setMinimumAltitude_m(3000.0 * FAC_FEET_TO_METERS);
+
+    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP4", CGeoloc(gStart.Latitude + 0.3, gStart.Longitude + 1.8, 0.0), 0.0);
+    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP5", CGeoloc(gStart.Latitude + 0.5, gStart.Longitude + 2.0, 0.0), 0.0);
+
+    m_tFlightPlan.waypoints() << CWaypoint(wtFix, "WP6", CGeoloc(gStart.Latitude + 0.5, gStart.Longitude + 2.8, 0.0), 0.0);
+    m_tFlightPlan.lastWaypoint().setSelectedAltitude_m(2500.0 * FAC_FEET_TO_METERS);
+
+    m_tFlightPlan.waypoints() << CWaypoint(wtRunway, "WP7", CGeoloc(gStart.Latitude + 0.5, gStart.Longitude + 2.9, 0.0), 0.0);
+}
+
+//-------------------------------------------------------------------------------------------------
+
 void CAirbusFMGC::work_FM(double dDeltaTime)
 {
     // Data processing from MCDU
@@ -111,6 +140,7 @@ void CAirbusFMGC::work_FM(double dDeltaTime)
 
     // Send flight plan
     pushData(CAirbusData(m_sName, adFG_FlightPlan_ptr, (quint64) &m_tFlightPlan, false));
+    pushData(CAirbusData(m_sName, adFG_Navaids_ptr, (quint64) m_rNavaids.component().data(), false));
     pushData(CAirbusData(m_sName, adFM_CompanyRoute, m_tFlightPlan.companyRoute(), false));
     pushData(CAirbusData(m_sName, adFM_FlightNumber, m_tFlightPlan.flightNumber(), false));
     pushData(CAirbusData(m_sName, adFM_ICAOFrom, m_tFlightPlan.ICAOFrom(), false));
@@ -268,7 +298,7 @@ void CAirbusFMGC::work_FG(double dDeltaTime)
 
     Q_UNUSED(dGeoLoc_TrueTrack_deg);
 
-    CGeoloc gGeoloc(Angles::toRad(dGeoLoc_Latitude_deg), Angles::toRad(dGeoLoc_Longitude_deg), 0.0);
+    CGeoloc gGeoloc(dGeoLoc_Latitude_deg, dGeoLoc_Longitude_deg, 0.0);
 
     // Compute auto heading
 

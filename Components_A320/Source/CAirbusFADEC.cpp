@@ -26,19 +26,17 @@ CComponent* CAirbusFADEC::instantiator(C3DScene* pScene)
 CAirbusFADEC::CAirbusFADEC(C3DScene* pScene)
     : CAirbusFlightComputer(pScene)
 {
-    LOG_DEBUG("CAirbusFADEC::CAirbusFADEC()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
 CAirbusFADEC::~CAirbusFADEC()
 {
-    LOG_DEBUG("CAirbusFADEC::~CAirbusFADEC()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void CAirbusFADEC::loadParameters(const QString& sBaseFile, CXMLNode xComponent)
+void CAirbusFADEC::loadParameters(const QString& sBaseFile, const CXMLNode& xComponent)
 {
     CAirbusFlightComputer::loadParameters(sBaseFile, xComponent);
 

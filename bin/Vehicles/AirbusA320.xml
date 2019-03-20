@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Component Name="AirbusA320" Class="CAircraft">
-    <Geoloc Latitude="19.2393" Longitude="10.8994" Altitude="40.0"/>
-    <Rotation x="0.0" y="90.0" z="0.0"/>
+    <Geoloc Latitude="40.622021" Longitude="-73.785586" Altitude="0.0"/>
+    <Rotation x="0.0" y="31.0" z="0.0"/>
+    <Physics MassKG="50000.0" Friction="0.1" Drag="0.0001" AngularDrag="0.75"/>
+    <CenterOfMass x="0.0" y="0.0" z="4.0"/>
+
     <Mesh Name="A320.q3d"/>
+
     <DynamicTexture Name="DynTex_PFD_CAPT" Updater=".DMC_1"/>
     <DynamicTexture Name="DynTex_ND_CAPT" Updater=".DMC_1"/>
     <DynamicTexture Name="DynTex_EWD" Updater=".DMC_3"/>
     <DynamicTexture Name="DynTex_SD" Updater=".DMC_3"/>
     <DynamicTexture Name="DynTex_MCDU_CAPT" Updater=".MCDU_1"/>
     <DynamicTexture Name="DynTex_MCDU_FO" Updater=".MCDU_2"/>
-    <Physics MassKG="50000.0" Friction="0.1" Drag="0.0001" AngularDrag="0.75"/>
-    <CenterOfMass x="0.0" y="0.0" z="4.0"/>
 
     <EFISWindow Name="FlatMCDU1" Class="CAirbusFlatMCDU"
         MCDU=".MCDU_1"
@@ -38,7 +40,7 @@
     </Component>
 
     <Component Name="Pilot" Class="CCamera">
-        <Position x="-0.6" y="0.7" z="14.3"/>
+        <Position x="-0.4" y="0.7" z="14.3"/>
         <Rotation x="0.0" y="0.0" z="0.0"/>
         <Controller Class="CStandardController"/>
         <RotationMinimum x="-5.0" y="-5.0" z="-5.0"/>
@@ -52,6 +54,18 @@
         <Rotation x="0.0" y="-90.0" z="0.0"/>
         <Physics StickToNOLL="0.0"/>
         <Controller Class="CStandardController"/>
+    </Component>
+
+    <!-- GEARS -->
+
+    <Component Name="NoseGear" Class="CWheel">
+        <Position x="0.0" y="-3.3" z="11.9"/>
+    </Component>
+    <Component Name="LeftGear" Class="CWheel">
+        <Position x="-3.5" y="-3.3" z="-0.3"/>
+    </Component>
+    <Component Name="RightGear" Class="CWheel">
+        <Position x="3.5" y="-3.3" z="-0.3"/>
     </Component>
 
     <!-- CONTROL SURFACES -->
@@ -86,13 +100,13 @@
         <Position x="5.6" y="-2.1" z="1.9"/>
         <Rotation x="0.0" y="0.0" z="0.0"/>
         <Physics MassKG="3000.0"/>
-        <Thrust MaxThrustKG="6000.0"/>
+        <Thrust MaxThrustKG="5000.0"/>
     </Component>
     <Component Name="Engine2" Class="CJetEngine">
         <Position x="-5.6" y="-2.1" z="1.9"/>
         <Rotation x="0.0" y="0.0" z="0.0"/>
         <Physics MassKG="3000.0"/>
-        <Thrust MaxThrustKG="6000.0"/>
+        <Thrust MaxThrustKG="5000.0"/>
     </Component>
 
     <Component Name="APU" Class="CJetEngine">
@@ -488,6 +502,7 @@
     <Component Name="FMGC_1" Class="CAirbusFMGC">
         <General UnitIndex="0"/>
         <PowerInput Name=".CONT_FMGC_1"/>
+        <NavaidInput Name="Navaids"/>
         <DataInput Name=".GEAR_SENSOR"/>
         <DataInput Name=".ADIRU_1"/>
         <DataInput Name=".FCC"/>
@@ -503,6 +518,7 @@
     <Component Name="FMGC_2" Class="CAirbusFMGC">
         <General UnitIndex="1"/>
         <PowerInput Name=".CONT_FMGC_2"/>
+        <NavaidInput Name="Navaids"/>
         <DataInput Name=".GEAR_SENSOR"/>
         <DataInput Name=".ADIRU_2"/>
         <DataInput Name=".FCC"/>

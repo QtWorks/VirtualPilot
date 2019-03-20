@@ -1,8 +1,7 @@
 
-#ifndef VIRTUALPILOT_H
-#define VIRTUALPILOT_H
+#pragma once
 
-// QT
+// Qt
 #include <QtGlobal>
 
 #if QT_VERSION >= 0x050000
@@ -13,11 +12,22 @@
 
 // Application
 #include "ui_VirtualPilot.h"
-
 #include "CGLWidgetScene.h"
 #include "CComponent.h"
 #include "CView.h"
 #include "CWorldTerrain.h"
+#include "CWorldTerrainMap.h"
+
+//-------------------------------------------------------------------------------------------------
+// OS defines
+
+#ifdef WIN32
+    #define GENERIC_PLUGIN  "Components_Generic.dll"
+#else
+    #define GENERIC_PLUGIN  "libComponents_Generic.so"
+#endif
+
+//-------------------------------------------------------------------------------------------------
 
 class VirtualPilot : public QMainWindow
 {
@@ -52,6 +62,9 @@ public:
     //!
     void loadVehicle(QString sFileName);
 
+    //!
+    void showMap();
+
     //-------------------------------------------------------------------------------------------------
     // Protected methods
     //-------------------------------------------------------------------------------------------------
@@ -82,8 +95,16 @@ private slots:
     void onFogLevelChanged(int iValue);
     void onWindLevelChanged(int iValue);
     void onShaderQualityChanged(int iValue);
+    void onOverlookFOVChanged(int iValue);
 
+    void onBoundsOnlyClicked();
+    void onNormalsOnlyClicked();
     void onOverlookClicked();
+
+    void onMapZoomInClicked();
+    void onMapZoomOutClicked();
+    void onMapZoomInFastClicked();
+    void onMapZoomOutFastClicked();
 
     //-------------------------------------------------------------------------------------------------
     // Properties
@@ -94,13 +115,13 @@ protected:
     Ui::VirtualPilotClass           ui;
     CGLWidgetScene*                 m_pScene;
     CView*                          m_pView;
+    CWorldTerrainMap*               m_pMap;
     QTimer                          m_tTimer;
-    CAverager<double>               m_FPS;
     QDateTime                       m_tPreviousTime;
     QString                         m_sPathVehicles;
+    CGeoloc                         m_gMapCenter;
+    double                          m_dMapScale;
     bool                            m_bProcessEvents;
     bool                            m_bRun;
     bool                            m_bRealTime;
 };
-
-#endif // VIRTUALPILOT_H

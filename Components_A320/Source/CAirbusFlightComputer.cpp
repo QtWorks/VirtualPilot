@@ -25,8 +25,6 @@ CAirbusFlightComputer::CAirbusFlightComputer(C3DScene* pScene)
     : CElectricalConsumer(pScene)
     , m_iUnitIndex(0)
 {
-    LOG_DEBUG("CAirbusFlightComputer::CAirbusFlightComputer()");
-
     m_tCurrent.m_eType = ctDC;
     m_tCurrent.m_dVoltage = 12.0;
     m_tCurrent.m_dAmperage = 1.0;
@@ -37,12 +35,11 @@ CAirbusFlightComputer::CAirbusFlightComputer(C3DScene* pScene)
 
 CAirbusFlightComputer::~CAirbusFlightComputer()
 {
-    LOG_DEBUG("CAirbusFlightComputer::~CAirbusFlightComputer()");
 }
 
 //-------------------------------------------------------------------------------------------------
 
-void CAirbusFlightComputer::loadParameters(const QString& sBaseFile, CXMLNode xComponent)
+void CAirbusFlightComputer::loadParameters(const QString& sBaseFile, const CXMLNode& xComponent)
 {
     CElectricalConsumer::loadParameters(sBaseFile, xComponent);
     CAirbusDataSupplier::loadParameters(sBaseFile, xComponent);
@@ -77,11 +74,11 @@ void CAirbusFlightComputer::update(double dDeltaTime)
 {
     CElectricalConsumer::update(dDeltaTime);
 
-    LOG_VALUE(QString("%1 (P/S)").arg(m_sName),
-              QString("%1 %2")
-              .arg(QString::number(m_bPowered))
-              .arg(QString::number(m_dStatus, 'f', 2))
-              );
+//    LOG_VALUE(QString("%1 (P/S)").arg(m_sName),
+//              QString("%1 %2")
+//              .arg(QString::number(m_bPowered))
+//              .arg(QString::number(m_dStatus, 'f', 2))
+//              );
 
     if (m_bPowered)
     {

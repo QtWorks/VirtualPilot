@@ -57,14 +57,14 @@ public:
     void initializeLists();
 
     //-------------------------------------------------------------------------------------------------
-    // Inherited methods
+    // Overridden methods
     //-------------------------------------------------------------------------------------------------
 
     //! Returns this object's class name
     virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusController; }
 
     //! Loads this object's parameters
-    virtual void loadParameters(const QString& sBaseFile, CXMLNode xComponent) Q_DECL_OVERRIDE;
+    virtual void loadParameters(const QString& sBaseFile, const CXMLNode& xComponent) Q_DECL_OVERRIDE;
 
     //! Solves the links of this object
     virtual void solveLinks(C3DScene* pScene) Q_DECL_OVERRIDE;
@@ -100,6 +100,9 @@ protected:
 
     QStringList                                     m_lEVENTS_MCDU_1;
     QStringList                                     m_lEVENTS_MCDU_2;
+    QMap<int, QString>                              m_mLetterToEvent;
+    QMap<int, QString>                              m_mDigitToEvent;
+    QMap<int, QString>                              m_mFunctionToEvent;
 
     double                                          m_dEngine1ThrustLever_norm;
     double                                          m_dEngine2ThrustLever_norm;

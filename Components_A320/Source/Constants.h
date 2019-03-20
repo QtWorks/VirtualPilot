@@ -89,6 +89,14 @@
 #define EventName_FCU_SEL_HEADING_DEC       "FCU_SEL_HEADING_DEC"
 #define EventName_FCU_SEL_HEADING_INC_FAST  "FCU_SEL_HEADING_INC_FAST"
 #define EventName_FCU_SEL_HEADING_DEC_FAST  "FCU_SEL_HEADING_DEC_FAST"
+#define EventName_FCU_SEL_ALTITUDE_INC      "FCU_SEL_ALTITUDE_INC"
+#define EventName_FCU_SEL_ALTITUDE_DEC      "FCU_SEL_ALTITUDE_DEC"
+#define EventName_FCU_SEL_ALTITUDE_INC_FAST "FCU_SEL_ALTITUDE_INC_FAST"
+#define EventName_FCU_SEL_ALTITUDE_DEC_FAST "FCU_SEL_ALTITUDE_DEC_FAST"
+#define EventName_FCU_LATERAL_MANAGED       "FCU_LATERAL_MANAGED"
+#define EventName_FCU_LATERAL_SELECTED      "FCU_LATERAL_SELECTED"
+#define EventName_FCU_VERTICAL_MANAGED      "FCU_VERTICAL_MANAGED"
+#define EventName_FCU_VERTICAL_SELECTED     "FCU_VERTICAL_SELECTED"
 
 #define EventName_THR_THROTTLE_INC          "THR_THROTTLE_INC"
 #define EventName_THR_THROTTLE_DEC          "THR_THROTTLE_DEC"
@@ -163,6 +171,11 @@
 #define EventName_MCDU_CAPT_Y               "MCDU_CAPT_Y"
 #define EventName_MCDU_CAPT_Z               "MCDU_CAPT_Z"
 
+#define EventName_MCDU_CAPT_SPACE           "MCDU_CAPT_SPACE"
+#define EventName_MCDU_CAPT_DELETE          "MCDU_CAPT_DELETE"
+#define EventName_MCDU_CAPT_SLASH           "MCDU_CAPT_SLASH"
+#define EventName_MCDU_CAPT_CLEAR           "MCDU_CAPT_CLEAR"
+
 #define EventName_MCDU_FO_1L                "MCDU_FO_1L"
 #define EventName_MCDU_FO_2L                "MCDU_FO_2L"
 #define EventName_MCDU_FO_3L                "MCDU_FO_3L"
@@ -222,6 +235,11 @@
 #define EventName_MCDU_FO_X                 "MCDU_FO_X"
 #define EventName_MCDU_FO_Y                 "MCDU_FO_Y"
 #define EventName_MCDU_FO_Z                 "MCDU_FO_Z"
+
+#define EventName_MCDU_FO_SPACE             "MCDU_FO_SPACE"
+#define EventName_MCDU_FO_DELETE            "MCDU_FO_DELETE"
+#define EventName_MCDU_FO_SLASH             "MCDU_FO_SLASH"
+#define EventName_MCDU_FO_CLEAR             "MCDU_FO_CLEAR"
 
 //-------------------------------------------------------------------------------------------------
 // MCDU colors

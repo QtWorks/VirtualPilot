@@ -40,14 +40,14 @@ public:
     //-------------------------------------------------------------------------------------------------
 
     //-------------------------------------------------------------------------------------------------
-    // Inherited methods
+    // Overridden methods
     //-------------------------------------------------------------------------------------------------
 
     //!
     virtual QString getClassName() const Q_DECL_OVERRIDE { return ClassName_CAirbusFlightComputer; }
 
     //! Loads this object's parameters
-    virtual void loadParameters(const QString& sBaseFile, CXMLNode xComponent) Q_DECL_OVERRIDE;
+    virtual void loadParameters(const QString& sBaseFile, const CXMLNode& xComponent) Q_DECL_OVERRIDE;
 
     //! Solves the links of this object
     virtual void solveLinks(C3DScene* pScene) Q_DECL_OVERRIDE;
@@ -55,15 +55,15 @@ public:
     //! Deletes this object's links
     virtual void clearLinks(C3DScene* pScene) Q_DECL_OVERRIDE;
 
-    //!
+    //! Updates this object
     virtual void update(double dDeltaTime) Q_DECL_OVERRIDE;
-
-    //!
-    virtual void work(double dDeltaTime);
 
     //-------------------------------------------------------------------------------------------------
     // Control methods
     //-------------------------------------------------------------------------------------------------
+
+    //! Does computer work
+    virtual void work(double dDeltaTime);
 
     //-------------------------------------------------------------------------------------------------
     // Properties
@@ -71,5 +71,5 @@ public:
 
 protected:
 
-    int		m_iUnitIndex;
+    int     m_iUnitIndex;
 };

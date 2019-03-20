@@ -1,8 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2016-01-22T20:41:20
-#
-#-------------------------------------------------
 
 QT += core gui network opengl xml
 
@@ -10,9 +5,20 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TEMPLATE = lib
 DEFINES += COMPONENTS_A320_LIB
-INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source
+
 INCLUDEPATH += $$PWD/../Quick3D/qt-plus/source/cpp
 INCLUDEPATH += $$PWD/../Quick3D/qt-plus/source/cpp/Web
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Animation
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Base
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Components
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Input
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Math
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Mesh
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Render
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Terrain
+INCLUDEPATH += $$PWD/../Quick3D/Quick3D/Source/Utils
+
 DEPENDPATH += $$PWD/../Quick3D/Quick3D
 DESTDIR = $$PWD/../bin/Plugins
 
@@ -29,6 +35,12 @@ CONFIG(debug, debug|release) {
 }
 
 # Libraries
+CONFIG(debug, debug|release) {
+    LIBS += -L$$PWD/../bin/Plugins/ -lComponents_Genericd
+} else {
+    LIBS += -L$$PWD/../bin/Plugins/ -lComponents_Generic
+}
+
 CONFIG(debug, debug|release) {
     LIBS += -L$$PWD/../Quick3D/Quick3D/bin/ -lQuick3Dd
 } else {
@@ -102,15 +114,3 @@ SOURCES += \
 
 RESOURCES += \
     A320.qrc
-
-# Copy qt-plus to bin
-copyfile = $$PWD/../Quick3D/qt-plus/bin/*.dll
-copydest = $$PWD/../bin
-
-QMAKE_PRE_LINK += $$QMAKE_COPY $$quote($$shell_path($$copyfile)) $$quote($$shell_path($$copydest)) $$escape_expand(\\n\\t)
-
-# Copy Quick3D to Binary
-copyfile = $$PWD/../Quick3D/Quick3D/bin/*.dll
-copydest = $$PWD/../bin
-
-QMAKE_PRE_LINK += $$QMAKE_COPY $$quote($$shell_path($$copyfile)) $$quote($$shell_path($$copydest)) $$escape_expand(\\n\\t)
